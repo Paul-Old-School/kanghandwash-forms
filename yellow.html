@@ -10,12 +10,26 @@
         body { font-family: 'Sarabun', sans-serif; background: #f0f2f5; min-height: 100vh; padding-bottom: 140px; }
         
         /* Header */
-        .header { background: linear-gradient(135deg, #607D8B, #78909C); color: white; padding: 16px; text-align: center; position: sticky; top: 0; z-index: 100; }
-        .header-logo { font-size: 32px; margin-bottom: 4px; }
-        .header h1 { font-size: 20px; font-weight: 600; margin-bottom: 6px; }
+        .header { background: linear-gradient(135deg, #607D8B, #78909C); color: white; padding: 16px; text-align: center; position: sticky; top: 0; z-index: 100; transition: all 0.3s ease; cursor: pointer; }
+        .header.collapsed { padding: 10px 16px; }
+        .header.collapsed .header-logo { font-size: 18px; margin-bottom: 0; }
+        .header.collapsed h1 { font-size: 14px; margin-bottom: 0; }
+        .header.collapsed .welcome-text,
+        .header.collapsed .badge-container { display: none !important; }
+        .header.collapsed .header-content { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: nowrap; }
+        .header.collapsed .mini-badge { display: inline-block !important; background: white; color: #37474F; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; }
+        .header.collapsed .expand-hint { display: inline-block; font-size: 10px; opacity: 0.7; animation: pulse 1.5s infinite; }
+        
+        .header-content { display: block; }
+        .header-logo { font-size: 32px; margin-bottom: 4px; transition: all 0.3s ease; }
+        .header h1 { font-size: 20px; font-weight: 600; margin-bottom: 6px; transition: all 0.3s ease; }
+        .badge-container { transition: all 0.3s ease; }
         .header .badge { display: inline-block; background: white; color: #37474F; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; border: 2px solid #37474F; }
         .header .building-badge { display: inline-block; background: #E65100; color: white; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; margin-left: 8px; }
-        .welcome-text { font-size: 13px; color: rgba(255,255,255,0.9); margin-top: 8px; }
+        .welcome-text { font-size: 13px; color: rgba(255,255,255,0.9); margin-top: 8px; transition: all 0.3s ease; }
+        .mini-badge { display: none; }
+        .expand-hint { display: none; color: #ffeaa7; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
         
         .container { max-width: 100%; margin: 0 auto; padding: 12px; }
         
@@ -174,19 +188,168 @@
         .summary-row .value { font-weight: 600; }
         .summary-row .free { color: #4CAF50; font-weight: 600; }
         
-        /* Summary Card (หน้าสรุปรายการ) */
-        .summary-card { background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 20px; padding: 24px; color: white; margin-bottom: 16px; }
-        .summary-card .summary-title { font-size: 18px; font-weight: 600; margin-bottom: 6px; display: flex; align-items: center; gap: 10px; }
-        .summary-card .summary-subtitle { font-size: 13px; opacity: 0.8; margin-bottom: 20px; }
-        .summary-card .summary-section { margin-bottom: 14px; }
-        .summary-card .summary-section-title { font-size: 13px; color: #FFD700; margin-bottom: 8px; font-weight: 600; }
+        /* Summary Card (หน้าสรุปรายการ) - Receipt Style */
+        .summary-card {
+            background: linear-gradient(135deg, #F9A825, #FBC02D);
+            border-radius: 20px;
+            padding: 24px;
+            color: #37474F;
+            margin-bottom: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        .summary-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #FFB300, #FFD54F, #FFF176, #FFD54F, #FFB300);
+        }
+        .summary-card .summary-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px dashed rgba(55,71,79,0.3);
+        }
+        .summary-card .summary-logo { font-size: 48px; margin-bottom: 8px; }
+        .summary-card .summary-title { font-size: 20px; font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .summary-card .summary-subtitle { font-size: 12px; opacity: 0.8; margin-bottom: 0; }
+        
+        .summary-card .summary-status {
+            background: linear-gradient(135deg, #FF8F00, #FFA000);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            margin-bottom: 20px;
+            color: white;
+        }
+        .summary-card .summary-status.paid {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+        }
+        .summary-card .summary-status-icon { font-size: 32px; margin-bottom: 8px; }
+        .summary-card .summary-status-text { font-size: 16px; font-weight: 600; }
+        .summary-card .summary-status-sub { font-size: 12px; opacity: 0.9; margin-top: 4px; }
+        
+        .summary-card .summary-order-id {
+            background: rgba(55,71,79,0.1);
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .summary-card .summary-order-label { font-size: 11px; opacity: 0.7; margin-bottom: 4px; }
+        .summary-card .summary-order-number { font-size: 20px; font-weight: 700; letter-spacing: 2px; color: #5D4037; }
+        .summary-card .summary-datetime { font-size: 11px; opacity: 0.6; margin-top: 8px; }
+        
+        .summary-card .summary-section {
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px dashed rgba(55,71,79,0.2);
+        }
+        .summary-card .summary-section:last-of-type { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .summary-card .summary-section-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #5D4037;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
         .summary-card .summary-items { display: flex; flex-direction: column; gap: 6px; }
-        .summary-card .summary-item { display: flex; justify-content: space-between; font-size: 14px; }
-        .summary-card .summary-item .label { opacity: 0.9; }
-        .summary-card .summary-item .value { font-weight: 600; }
-        .summary-card .summary-divider { height: 1px; background: rgba(255,255,255,0.3); margin: 14px 0; }
-        .summary-card .summary-total { display: flex; justify-content: space-between; font-size: 22px; font-weight: 700; }
-        .summary-card .summary-note { background: rgba(255,255,255,0.1); border-radius: 10px; padding: 12px; margin-top: 16px; font-size: 12px; opacity: 0.9; }
+        .summary-card .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            padding: 4px 0;
+        }
+        .summary-card .summary-item .label { opacity: 0.8; }
+        .summary-card .summary-item .value { font-weight: 500; }
+        
+        .summary-card .summary-item-card {
+            background: rgba(55,71,79,0.08);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 8px;
+        }
+        .summary-card .summary-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        .summary-card .summary-item-title { font-weight: 600; font-size: 13px; }
+        .summary-card .summary-item-price { color: #2E7D32; font-weight: 600; }
+        .summary-card .summary-item-details { font-size: 11px; opacity: 0.7; display: flex; flex-wrap: wrap; gap: 8px; }
+        
+        .summary-card .summary-divider { height: 1px; background: rgba(55,71,79,0.2); margin: 14px 0; }
+        
+        .summary-card .summary-total {
+            background: linear-gradient(135deg, #FF8F00, #FFA000);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 16px;
+            color: white;
+        }
+        .summary-card .summary-total-label { font-size: 14px; font-weight: 600; }
+        .summary-card .summary-total-value { font-size: 28px; font-weight: 700; }
+        
+        .summary-card .summary-note {
+            background: rgba(55,71,79,0.1);
+            border-radius: 10px;
+            padding: 12px;
+            margin-top: 16px;
+            font-size: 11px;
+        }
+        .summary-card .summary-note-title { font-weight: 600; color: #5D4037; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+        .summary-card .summary-note-item { padding: 2px 0; opacity: 0.9; }
+        
+        .summary-card .summary-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .summary-card .summary-btn {
+            padding: 16px;
+            border-radius: 12px;
+            border: none;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+        .summary-card .summary-btn-primary {
+            background: linear-gradient(135deg, #4CAF50, #43A047);
+            color: white;
+        }
+        .summary-card .summary-btn-secondary {
+            background: rgba(55,71,79,0.1);
+            color: #37474F;
+            border: 1px solid rgba(55,71,79,0.2);
+        }
+        .summary-card .summary-btn:active { transform: scale(0.98); }
+        
+        .summary-card .summary-footer {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px dashed rgba(55,71,79,0.2);
+        }
+        .summary-card .summary-footer-text { font-size: 11px; opacity: 0.6; }
+        .summary-card .summary-footer-contact { font-size: 12px; margin-top: 8px; opacity: 0.8; }
         
         /* Basket Detail Card */
         .basket-detail-card { background: rgba(255,255,255,0.1); border-radius: 12px; padding: 14px; margin-bottom: 10px; }
@@ -208,6 +371,121 @@
         .slip-upload.uploaded { border-color: #4CAF50; background: #E8F5E9; }
         .slip-upload .icon { font-size: 36px; margin-bottom: 8px; }
         .slip-upload .text { font-size: 14px; color: #546E7A; }
+        
+        /* Slip Verification Styles */
+        .slip-verification-container {
+            margin-top: 16px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .slip-verify-status {
+            padding: 20px;
+            text-align: center;
+            border-radius: 12px;
+            margin-bottom: 12px;
+        }
+        .slip-verify-status.verifying {
+            background: linear-gradient(135deg, #FF8F00, #FFA000);
+            color: white;
+        }
+        .slip-verify-status.verified {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+        }
+        .slip-verify-status.failed {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+        }
+        .slip-verify-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+        .slip-verify-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .slip-verify-subtitle {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        .slip-progress-bar {
+            background: rgba(255,255,255,0.3);
+            border-radius: 10px;
+            height: 8px;
+            margin-top: 16px;
+            overflow: hidden;
+        }
+        .slip-progress-fill {
+            background: white;
+            height: 100%;
+            border-radius: 10px;
+            animation: progressAnim 2s ease-in-out infinite;
+        }
+        @keyframes progressAnim {
+            0% { width: 0%; }
+            50% { width: 70%; }
+            100% { width: 100%; }
+        }
+        .slip-preview-img {
+            width: 100%;
+            max-width: 200px;
+            border-radius: 8px;
+            margin: 12px auto;
+            display: block;
+            border: 3px solid rgba(255,255,255,0.3);
+        }
+        .slip-data-card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 12px;
+            margin-top: 12px;
+            text-align: left;
+        }
+        .slip-data-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            font-size: 13px;
+            border-bottom: 1px dashed rgba(255,255,255,0.2);
+        }
+        .slip-data-row:last-child {
+            border-bottom: none;
+        }
+        .slip-data-label {
+            opacity: 0.8;
+        }
+        .slip-data-value {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .slip-data-value .check {
+            color: #2ecc71;
+        }
+        .slip-data-value .cross {
+            color: #e74c3c;
+        }
+        .slip-error-box {
+            background: rgba(255,255,255,0.15);
+            border-radius: 10px;
+            padding: 12px;
+            margin-top: 12px;
+        }
+        .slip-error-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .slip-error-message {
+            font-size: 12px;
+            opacity: 0.9;
+        }
         
         /* Receipt */
         .receipt { background: white; border-radius: 16px; padding: 20px; margin: 16px 0; border: 2px solid #4CAF50; position: relative; }
@@ -244,14 +522,18 @@
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="header-logo">🧺</div>
-        <h1>ร้านกังหันดีวอช</h1>
-        <div>
-            <span class="badge">🟨 บัตรคิวสีเหลือง</span>
-            <span class="building-badge">🏢 ตึก 9</span>
+    <div class="header" id="mainHeader" onclick="toggleHeaderCollapse()">
+        <div class="header-content">
+            <span class="header-logo">🧺</span>
+            <h1>ร้านกังหันดีวอช</h1>
+            <span class="mini-badge">🟨 เหลือง | ตึก 9</span>
+            <span class="expand-hint">▼ แตะเพื่อขยาย</span>
+            <div class="badge-container">
+                <span class="badge">🟨 บัตรคิวสีเหลือง</span>
+                <span class="building-badge">🏢 ตึก 9</span>
+            </div>
+            <div class="welcome-text">บริการซักผ้า รับ-ส่งฟรี สำหรับลูกค้าตึก 9</div>
         </div>
-        <div class="welcome-text">บริการซักผ้า รับ-ส่งฟรี สำหรับลูกค้าตึก 9</div>
     </div>
     
     <div class="container">
@@ -414,8 +696,19 @@
         <div id="step4Summary" class="hidden">
             <button class="back-btn" onclick="goBackFromSummary()">← กลับ</button>
             <div class="summary-card">
-                <div class="summary-title"><span>📋</span> สรุปรายการ</div>
-                <div class="summary-subtitle">กรุณาตรวจสอบรายการก่อนดำเนินการชำระเงินค่ะ</div>
+                <!-- Header -->
+                <div class="summary-header">
+                    <div class="summary-logo">🧺</div>
+                    <div class="summary-title">ร้านกังหันดีวอช</div>
+                    <div class="summary-subtitle">สรุปรายการ - บัตรคิวสีเหลือง (ตึก 9)</div>
+                </div>
+                
+                <!-- สถานะรอชำระเงิน -->
+                <div class="summary-status" id="summaryStatus">
+                    <div class="summary-status-icon">⏳</div>
+                    <div class="summary-status-text">รอชำระเงิน</div>
+                    <div class="summary-status-sub">กรุณาตรวจสอบรายการก่อนดำเนินการค่ะ</div>
+                </div>
                 
                 <!-- ข้อมูลซัก-อบ -->
                 <div class="summary-section">
@@ -441,12 +734,22 @@
                 <div class="summary-divider"></div>
                 
                 <!-- ราคารวม -->
-                <div class="summary-total"><span>🎯 รวมทั้งหมด</span><span id="summaryGrandTotal">0 ฿</span></div>
+                <div class="summary-total">
+                    <span class="summary-total-label">💰 รวมทั้งหมด</span>
+                    <span class="summary-total-value" id="summaryGrandTotal">0 ฿</span>
+                </div>
                 
                 <!-- เงื่อนไขสำหรับตึก 9 -->
                 <div class="summary-note">
-                    <div style="margin-bottom: 4px;">🏢 <strong>ลูกค้าตึก 9</strong> - ส่งผ้าฟรี!</div>
-                    <div>🚗 ส่งผ้าคืนลูกค้าไม่เกิน 18:00 น. นะค่ะ</div>
+                    <div class="summary-note-title">📢 เงื่อนไขการจัดส่ง</div>
+                    <div class="summary-note-item">• 🏢 <strong>ลูกค้าตึก 9</strong> - ส่งผ้าฟรี!</div>
+                    <div class="summary-note-item">• 🚗 ส่งผ้าคืนลูกค้าไม่เกิน 18:00 น.</div>
+                </div>
+                
+                <!-- Footer -->
+                <div class="summary-footer">
+                    <div class="summary-footer-text">กรุณาตรวจสอบรายการก่อนชำระเงิน</div>
+                    <div class="summary-footer-contact">📞 094-325-9578 | 💬 LINE: @kanhan2024</div>
                 </div>
             </div>
             
@@ -505,6 +808,56 @@
                     <div class="text" id="slipText">แตะเพื่ออัพโหลดสลิป</div>
                 </div>
                 <input type="file" id="slipInput" accept="image/*" capture="environment" style="display:none" onchange="handleSlipUpload(this)">
+                
+                <!-- Slip Verification Container -->
+                <div id="slipVerificationContainer" class="slip-verification-container hidden">
+                    <!-- Verifying State -->
+                    <div id="slipVerifying" class="slip-verify-status verifying hidden">
+                        <div class="slip-verify-icon">🔄</div>
+                        <div class="slip-verify-title">กำลังตรวจสอบสลิป...</div>
+                        <div class="slip-verify-subtitle">กรุณารอสักครู่</div>
+                        <div class="slip-progress-bar">
+                            <div class="slip-progress-fill"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Verified State -->
+                    <div id="slipVerified" class="slip-verify-status verified hidden">
+                        <div class="slip-verify-icon">✅</div>
+                        <div class="slip-verify-title">ตรวจสอบสลิปสำเร็จ!</div>
+                        <div class="slip-verify-subtitle">ขอบคุณที่ใช้บริการค่ะ</div>
+                        <img id="slipPreviewImg" class="slip-preview-img hidden" alt="สลิป">
+                        <div id="slipDataCard" class="slip-data-card hidden">
+                            <div class="slip-data-row">
+                                <span class="slip-data-label">จำนวนเงิน</span>
+                                <span class="slip-data-value" id="slipAmountVerified">-</span>
+                            </div>
+                            <div class="slip-data-row">
+                                <span class="slip-data-label">วันที่โอน</span>
+                                <span class="slip-data-value" id="slipDateVerified">-</span>
+                            </div>
+                            <div class="slip-data-row">
+                                <span class="slip-data-label">สถานะ</span>
+                                <span class="slip-data-value"><span class="check">✓</span> ยืนยันแล้ว</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Failed State -->
+                    <div id="slipFailed" class="slip-verify-status failed hidden">
+                        <div class="slip-verify-icon">❌</div>
+                        <div class="slip-verify-title">ตรวจสอบสลิปไม่สำเร็จ</div>
+                        <div class="slip-verify-subtitle" id="slipFailedReason">กรุณาลองใหม่อีกครั้ง</div>
+                        <div class="slip-error-box">
+                            <div class="slip-error-title">⚠️ โปรดตรวจสอบ</div>
+                            <div class="slip-error-message">
+                                • สลิปต้องชัดเจนและครบถ้วน<br>
+                                • จำนวนเงินต้องตรงกับยอดที่แสดง<br>
+                                • ใช้ภาพสลิปจริงเท่านั้น
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -555,6 +908,60 @@
     </div>
     
     <script>
+        // ==================== HEADER COLLAPSE FUNCTIONS ====================
+        let headerCollapsed = false;
+        
+        function collapseHeader() {
+            const header = document.getElementById('mainHeader');
+            if (header && !headerCollapsed) {
+                header.classList.add('collapsed');
+                headerCollapsed = true;
+            }
+        }
+        
+        function expandHeader() {
+            const header = document.getElementById('mainHeader');
+            if (header && headerCollapsed) {
+                header.classList.remove('collapsed');
+                headerCollapsed = false;
+            }
+        }
+        
+        function toggleHeaderCollapse() {
+            if (headerCollapsed) {
+                expandHeader();
+            }
+            // ไม่ย่อเมื่อแตะ header ตอนขยาย (ให้ scroll ย่อแทน)
+        }
+        
+        // ย่อ header เป็น mini bar เมื่อ scroll ลง
+        let lastScrollTop = 0;
+        window.addEventListener('scroll', function() {
+            const header = document.getElementById('mainHeader');
+            const st = window.pageYOffset || document.documentElement.scrollTop;
+            
+            if (st > lastScrollTop && st > 80) {
+                // Scroll down - ย่อ header เป็น mini bar
+                collapseHeader();
+            }
+            // ไม่ขยาย header อัตโนมัติเมื่อ scroll ขึ้น - ให้ผู้ใช้แตะเอง
+            
+            lastScrollTop = st <= 0 ? 0 : st;
+        }, false);
+        
+        // เพิ่ม event listener สำหรับทุก input
+        document.addEventListener('DOMContentLoaded', function() {
+            document.body.addEventListener('focusin', function(e) {
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                    collapseHeader();
+                    // Scroll ให้ input อยู่ในตำแหน่งที่เห็น
+                    setTimeout(() => {
+                        e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 100);
+                }
+            });
+        });
+        
         // ==================== DATA ====================
         const PRICING = {
             wash: {
@@ -1038,12 +1445,75 @@
         // ==================== SLIP ====================
         function handleSlipUpload(input) {
             if (input.files && input.files[0]) {
-                state.slipUploaded = true;
-                document.getElementById('slipArea').classList.add('uploaded');
-                document.getElementById('slipIcon').textContent = '✅';
-                document.getElementById('slipText').textContent = 'อัพโหลดสลิปสำเร็จ!';
-                updateNextButton();
+                const file = input.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    // แสดง verification container
+                    document.getElementById('slipVerificationContainer').classList.remove('hidden');
+                    
+                    // แสดงสถานะ verifying
+                    showSlipVerifyingState();
+                    
+                    // อัพเดท slip area
+                    document.getElementById('slipArea').classList.add('uploaded');
+                    document.getElementById('slipIcon').textContent = '✅';
+                    document.getElementById('slipText').textContent = 'กำลังตรวจสอบสลิป...';
+                    
+                    // จำลองการตรวจสอบ (ในระบบจริงจะส่งไป API)
+                    setTimeout(() => {
+                        // สมมติว่าตรวจสอบสำเร็จ
+                        state.slipUploaded = true;
+                        state.slipData = e.target.result;
+                        
+                        showSlipVerifiedState(e.target.result);
+                        document.getElementById('slipText').textContent = 'อัพโหลดสลิปสำเร็จ!';
+                        updateNextButton();
+                    }, 2000);
+                };
+                
+                reader.readAsDataURL(file);
             }
+        }
+        
+        function showSlipVerifyingState() {
+            document.getElementById('slipVerifying').classList.remove('hidden');
+            document.getElementById('slipVerified').classList.add('hidden');
+            document.getElementById('slipFailed').classList.add('hidden');
+        }
+        
+        function showSlipVerifiedState(imageData) {
+            document.getElementById('slipVerifying').classList.add('hidden');
+            document.getElementById('slipVerified').classList.remove('hidden');
+            document.getElementById('slipFailed').classList.add('hidden');
+            
+            // แสดงรูปสลิป
+            const previewImg = document.getElementById('slipPreviewImg');
+            previewImg.src = imageData;
+            previewImg.classList.remove('hidden');
+            
+            // แสดงข้อมูลสลิป
+            const dataCard = document.getElementById('slipDataCard');
+            dataCard.classList.remove('hidden');
+            
+            const { total } = calculateTotal();
+            document.getElementById('slipAmountVerified').textContent = total.toLocaleString() + ' ฿';
+            document.getElementById('slipDateVerified').textContent = new Date().toLocaleDateString('th-TH');
+        }
+        
+        function showSlipFailedState(reason) {
+            document.getElementById('slipVerifying').classList.add('hidden');
+            document.getElementById('slipVerified').classList.add('hidden');
+            document.getElementById('slipFailed').classList.remove('hidden');
+            
+            if (reason) {
+                document.getElementById('slipFailedReason').textContent = reason;
+            }
+            
+            // รีเซ็ต slip area
+            document.getElementById('slipArea').classList.remove('uploaded');
+            document.getElementById('slipIcon').textContent = '🧾';
+            document.getElementById('slipText').textContent = 'แตะเพื่ออัพโหลดสลิปใหม่';
         }
         
         // ==================== CALCULATE ====================
