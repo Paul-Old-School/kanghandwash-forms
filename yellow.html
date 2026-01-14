@@ -190,12 +190,12 @@
         
         /* Summary Card (หน้าสรุปรายการ) - Receipt Style */
         .summary-card {
-            background: linear-gradient(135deg, #F9A825, #FBC02D);
+            background: linear-gradient(135deg, #FFF8E1, #FFECB3);
             border-radius: 20px;
             padding: 24px;
-            color: #37474F;
+            color: #4E342E;
             margin-bottom: 16px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
             position: relative;
             overflow: hidden;
         }
@@ -206,17 +206,17 @@
             left: 0;
             right: 0;
             height: 4px;
-            background: linear-gradient(90deg, #FFB300, #FFD54F, #FFF176, #FFD54F, #FFB300);
+            background: linear-gradient(90deg, #FF8F00, #FFA000, #FFB300, #FFA000, #FF8F00);
         }
         .summary-card .summary-header {
             text-align: center;
             margin-bottom: 20px;
             padding-bottom: 16px;
-            border-bottom: 1px dashed rgba(55,71,79,0.3);
+            border-bottom: 1px dashed rgba(78,52,46,0.3);
         }
         .summary-card .summary-logo { font-size: 48px; margin-bottom: 8px; }
-        .summary-card .summary-title { font-size: 20px; font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .summary-card .summary-subtitle { font-size: 12px; opacity: 0.8; margin-bottom: 0; }
+        .summary-card .summary-title { font-size: 20px; font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; justify-content: center; gap: 10px; color: #3E2723; }
+        .summary-card .summary-subtitle { font-size: 13px; margin-bottom: 0; font-weight: 500; color: #5D4037; }
         
         .summary-card .summary-status {
             background: linear-gradient(135deg, #FF8F00, #FFA000);
@@ -230,63 +230,63 @@
             background: linear-gradient(135deg, #27ae60, #2ecc71);
         }
         .summary-card .summary-status-icon { font-size: 32px; margin-bottom: 8px; }
-        .summary-card .summary-status-text { font-size: 16px; font-weight: 600; }
-        .summary-card .summary-status-sub { font-size: 12px; opacity: 0.9; margin-top: 4px; }
+        .summary-card .summary-status-text { font-size: 16px; font-weight: 700; }
+        .summary-card .summary-status-sub { font-size: 13px; margin-top: 4px; font-weight: 500; }
         
         .summary-card .summary-order-id {
-            background: rgba(55,71,79,0.1);
+            background: rgba(78,52,46,0.08);
             border-radius: 10px;
             padding: 12px;
             text-align: center;
             margin-bottom: 20px;
         }
-        .summary-card .summary-order-label { font-size: 11px; opacity: 0.7; margin-bottom: 4px; }
-        .summary-card .summary-order-number { font-size: 20px; font-weight: 700; letter-spacing: 2px; color: #5D4037; }
-        .summary-card .summary-datetime { font-size: 11px; opacity: 0.6; margin-top: 8px; }
+        .summary-card .summary-order-label { font-size: 12px; margin-bottom: 4px; font-weight: 500; color: #6D4C41; }
+        .summary-card .summary-order-number { font-size: 20px; font-weight: 700; letter-spacing: 2px; color: #E65100; }
+        .summary-card .summary-datetime { font-size: 12px; margin-top: 8px; font-weight: 500; color: #6D4C41; }
         
         .summary-card .summary-section {
             margin-bottom: 16px;
             padding-bottom: 16px;
-            border-bottom: 1px dashed rgba(55,71,79,0.2);
+            border-bottom: 1px dashed rgba(78,52,46,0.2);
         }
         .summary-card .summary-section:last-of-type { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
         .summary-card .summary-section-title {
-            font-size: 12px;
-            font-weight: 600;
-            color: #5D4037;
-            margin-bottom: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #E65100;
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
             gap: 6px;
         }
-        .summary-card .summary-items { display: flex; flex-direction: column; gap: 6px; }
+        .summary-card .summary-items { display: flex; flex-direction: column; gap: 8px; }
         .summary-card .summary-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 13px;
+            font-size: 14px;
             padding: 4px 0;
         }
-        .summary-card .summary-item .label { opacity: 0.8; }
-        .summary-card .summary-item .value { font-weight: 500; }
+        .summary-card .summary-item .label { font-weight: 500; color: #5D4037; }
+        .summary-card .summary-item .value { font-weight: 600; color: #3E2723; }
         
         .summary-card .summary-item-card {
-            background: rgba(55,71,79,0.08);
+            background: rgba(78,52,46,0.08);
             border-radius: 8px;
-            padding: 10px;
+            padding: 12px;
             margin-bottom: 8px;
         }
         .summary-card .summary-item-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
         }
-        .summary-card .summary-item-title { font-weight: 600; font-size: 13px; }
-        .summary-card .summary-item-price { color: #2E7D32; font-weight: 600; }
-        .summary-card .summary-item-details { font-size: 11px; opacity: 0.7; display: flex; flex-wrap: wrap; gap: 8px; }
+        .summary-card .summary-item-title { font-weight: 700; font-size: 14px; color: #3E2723; }
+        .summary-card .summary-item-price { color: #2E7D32; font-weight: 700; font-size: 15px; }
+        .summary-card .summary-item-details { font-size: 13px; display: flex; flex-wrap: wrap; gap: 8px; font-weight: 500; color: #5D4037; }
         
-        .summary-card .summary-divider { height: 1px; background: rgba(55,71,79,0.2); margin: 14px 0; }
+        .summary-card .summary-divider { height: 1px; background: rgba(78,52,46,0.2); margin: 14px 0; }
         
         .summary-card .summary-total {
             background: linear-gradient(135deg, #FF8F00, #FFA000);
@@ -298,18 +298,18 @@
             margin-top: 16px;
             color: white;
         }
-        .summary-card .summary-total-label { font-size: 14px; font-weight: 600; }
+        .summary-card .summary-total-label { font-size: 15px; font-weight: 700; }
         .summary-card .summary-total-value { font-size: 28px; font-weight: 700; }
         
         .summary-card .summary-note {
-            background: rgba(55,71,79,0.1);
+            background: rgba(78,52,46,0.08);
             border-radius: 10px;
             padding: 12px;
             margin-top: 16px;
-            font-size: 11px;
+            font-size: 13px;
         }
-        .summary-card .summary-note-title { font-weight: 600; color: #5D4037; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
-        .summary-card .summary-note-item { padding: 2px 0; opacity: 0.9; }
+        .summary-card .summary-note-title { font-weight: 700; color: #E65100; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+        .summary-card .summary-note-item { padding: 3px 0; font-weight: 500; color: #5D4037; }
         
         .summary-card .summary-actions {
             display: flex;
@@ -336,9 +336,9 @@
             color: white;
         }
         .summary-card .summary-btn-secondary {
-            background: rgba(55,71,79,0.1);
-            color: #37474F;
-            border: 1px solid rgba(55,71,79,0.2);
+            background: rgba(78,52,46,0.1);
+            color: #4E342E;
+            border: 1px solid rgba(78,52,46,0.3);
         }
         .summary-card .summary-btn:active { transform: scale(0.98); }
         
@@ -346,10 +346,10 @@
             text-align: center;
             margin-top: 20px;
             padding-top: 16px;
-            border-top: 1px dashed rgba(55,71,79,0.2);
+            border-top: 1px dashed rgba(78,52,46,0.2);
         }
-        .summary-card .summary-footer-text { font-size: 11px; opacity: 0.6; }
-        .summary-card .summary-footer-contact { font-size: 12px; margin-top: 8px; opacity: 0.8; }
+        .summary-card .summary-footer-text { font-size: 12px; font-weight: 500; color: #6D4C41; }
+        .summary-card .summary-footer-contact { font-size: 13px; margin-top: 8px; font-weight: 600; color: #5D4037; }
         
         /* Basket Detail Card */
         .basket-detail-card { background: rgba(255,255,255,0.1); border-radius: 12px; padding: 14px; margin-bottom: 10px; }
