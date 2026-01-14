@@ -487,26 +487,164 @@
             opacity: 0.9;
         }
         
-        /* Receipt */
-        .receipt { background: white; border-radius: 16px; padding: 20px; margin: 16px 0; border: 2px solid #4CAF50; position: relative; }
-        .receipt::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 6px; background: linear-gradient(90deg, #607D8B, #78909C, #607D8B); border-radius: 16px 16px 0 0; }
-        .receipt-header { text-align: center; padding-bottom: 16px; border-bottom: 2px dashed #e0e0e0; margin-bottom: 16px; }
-        .receipt-logo { font-size: 40px; margin-bottom: 8px; }
-        .receipt-title { font-size: 18px; font-weight: 700; color: #2d3436; }
-        .receipt-subtitle { font-size: 13px; color: #888; }
-        .receipt-queue { text-align: center; padding: 16px; background: linear-gradient(135deg, #ECEFF1, #CFD8DC); border-radius: 12px; margin: 16px 0; }
-        .receipt-queue-label { font-size: 13px; color: #546E7A; }
-        .receipt-queue-number { font-size: 48px; font-weight: 700; color: #607D8B; }
-        .receipt-queue-color { font-size: 14px; color: #78909C; }
-        .receipt-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; border-bottom: 1px dashed #e0e0e0; }
-        .receipt-row:last-child { border-bottom: none; }
-        .receipt-row .label { color: #888; }
-        .receipt-row .value { font-weight: 600; color: #2d3436; }
-        .receipt-total { text-align: center; padding: 16px; background: linear-gradient(135deg, #E8F5E9, #C8E6C9); border-radius: 12px; margin-top: 16px; }
-        .receipt-total-label { font-size: 14px; color: #388E3C; }
-        .receipt-total-value { font-size: 36px; font-weight: 700; color: #2E7D32; }
-        .receipt-delivery { text-align: center; padding: 12px; background: linear-gradient(135deg, #FFF3E0, #FFE0B2); border-radius: 12px; margin-top: 12px; }
-        .receipt-delivery-text { font-size: 14px; color: #E65100; font-weight: 600; }
+        /* Receipt Card - ใบยืนยันสไตล์เดียวกับ orange/blue */
+        .receipt-card {
+            background: linear-gradient(135deg, #5D4037, #6D4C41);
+            border-radius: 20px;
+            padding: 24px;
+            color: white;
+            margin-bottom: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        .receipt-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #FFB300, #FFC107, #FFD54F, #FFC107, #FFB300);
+        }
+        .receipt-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px dashed rgba(255,255,255,0.2);
+        }
+        .receipt-logo { font-size: 48px; margin-bottom: 8px; }
+        .receipt-title { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+        .receipt-subtitle { font-size: 12px; opacity: 0.8; }
+        
+        .receipt-status {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .receipt-status.pending {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+        }
+        .receipt-status-icon { font-size: 32px; margin-bottom: 8px; }
+        .receipt-status-text { font-size: 16px; font-weight: 600; }
+        .receipt-status-sub { font-size: 12px; opacity: 0.9; margin-top: 4px; }
+        
+        .receipt-order-id {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .receipt-order-label { font-size: 11px; opacity: 0.7; margin-bottom: 4px; }
+        .receipt-order-number { font-size: 20px; font-weight: 700; letter-spacing: 2px; color: #FFD54F; }
+        .receipt-datetime { font-size: 11px; opacity: 0.6; margin-top: 8px; }
+        
+        .receipt-section {
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px dashed rgba(255,255,255,0.15);
+        }
+        .receipt-section:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .receipt-section-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #FFD54F;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .receipt-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            padding: 4px 0;
+        }
+        .receipt-row .label { opacity: 0.8; }
+        .receipt-row .value { font-weight: 500; }
+        
+        .receipt-item-card {
+            background: rgba(255,255,255,0.08);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 8px;
+        }
+        .receipt-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        .receipt-item-title { font-weight: 600; font-size: 13px; }
+        .receipt-item-price { color: #4CAF50; font-weight: 600; }
+        .receipt-item-details { font-size: 11px; opacity: 0.7; display: flex; flex-wrap: wrap; gap: 8px; }
+        
+        .receipt-total {
+            background: linear-gradient(135deg, #FFB300, #FFC107);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 16px;
+            color: #3E2723;
+        }
+        .receipt-total-label { font-size: 14px; font-weight: 600; }
+        .receipt-total-value { font-size: 28px; font-weight: 700; }
+        
+        .receipt-note {
+            background: rgba(255, 193, 7, 0.15);
+            border-radius: 10px;
+            padding: 12px;
+            margin-top: 16px;
+            font-size: 11px;
+        }
+        .receipt-note-title { font-weight: 600; color: #FFD54F; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+        .receipt-note-item { padding: 2px 0; opacity: 0.9; }
+        
+        .receipt-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .receipt-btn {
+            padding: 16px;
+            border-radius: 12px;
+            border: none;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+        .receipt-btn-primary {
+            background: linear-gradient(135deg, #FFB300, #FFA000);
+            color: #3E2723;
+        }
+        .receipt-btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .receipt-btn:active { transform: scale(0.98); }
+        
+        .receipt-footer {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px dashed rgba(255,255,255,0.15);
+        }
+        .receipt-footer-text { font-size: 11px; opacity: 0.6; }
+        .receipt-footer-contact { font-size: 12px; margin-top: 8px; opacity: 0.8; }
         
         /* Buttons */
         .back-btn { background: none; border: none; color: #607D8B; font-size: 14px; cursor: pointer; padding: 8px 0; margin-bottom: 12px; display: flex; align-items: center; gap: 4px; font-family: inherit; }
@@ -863,40 +1001,85 @@
         
         <!-- Step 7: ใบยืนยัน -->
         <div id="step7" class="hidden">
-            <div class="receipt">
+            <div class="receipt-card">
                 <div class="receipt-header">
                     <div class="receipt-logo">🧺</div>
                     <div class="receipt-title">ร้านกังหันดีวอช</div>
                     <div class="receipt-subtitle">ใบยืนยันการใช้บริการ</div>
                 </div>
                 
-                <div class="receipt-queue">
-                    <div class="receipt-queue-label">บัตรคิวที่</div>
-                    <div class="receipt-queue-number" id="receiptQueue">#--</div>
-                    <div class="receipt-queue-color">🟨 บัตรสีเหลือง (ตึก 9)</div>
+                <!-- สถานะการชำระเงิน -->
+                <div class="receipt-status" id="receiptStatus">
+                    <div class="receipt-status-icon">✅</div>
+                    <div class="receipt-status-text" id="receiptStatusText">ชำระเงินเรียบร้อย</div>
+                    <div class="receipt-status-sub" id="receiptStatusSub">ขอบคุณที่ใช้บริการค่ะ</div>
                 </div>
                 
-                <div id="receiptDetails">
-                    <!-- Dynamic receipt content -->
+                <!-- หมายเลขออเดอร์ -->
+                <div class="receipt-order-id">
+                    <div class="receipt-order-label">หมายเลขออเดอร์</div>
+                    <div class="receipt-order-number" id="receiptOrderId">KY-000000-000</div>
+                    <div class="receipt-datetime" id="receiptDateTime">-</div>
                 </div>
                 
-                <div class="receipt-total">
-                    <div class="receipt-total-label">ยอดชำระ</div>
-                    <div class="receipt-total-value" id="receiptTotal">0 ฿</div>
+                <!-- ข้อมูลบริการ -->
+                <div class="receipt-section">
+                    <div class="receipt-section-title">🧺 รายละเอียดบริการ</div>
+                    <div class="receipt-row">
+                        <span class="label">จำนวนตะกร้า</span>
+                        <span class="value" id="receiptBasketCount">-</span>
+                    </div>
+                    <div class="receipt-row">
+                        <span class="label">ประเภทบริการ</span>
+                        <span class="value" id="receiptServiceType">-</span>
+                    </div>
+                    <div id="receiptServiceDetails"></div>
                 </div>
                 
-                <div class="receipt-delivery">
-                    <div class="receipt-delivery-text">
-                        🚗 ส่งผ้าคืนที่ตึก 9 ไม่เกิน 18:00 น.
+                <!-- ข้อมูลติดต่อ -->
+                <div class="receipt-section">
+                    <div class="receipt-section-title">📞 ข้อมูลติดต่อ</div>
+                    <div class="receipt-row">
+                        <span class="label">เบอร์โทร</span>
+                        <span class="value" id="receiptPhone">-</span>
+                    </div>
+                    <div class="receipt-row">
+                        <span class="label">LINE ID</span>
+                        <span class="value" id="receiptLineId">-</span>
+                    </div>
+                    <div class="receipt-row">
+                        <span class="label">การชำระเงิน</span>
+                        <span class="value" id="receiptPayment">-</span>
                     </div>
                 </div>
-            </div>
-            
-            <div class="info-box" style="background: linear-gradient(135deg, #E3F2FD, #BBDEFB); border-color: #2196F3;">
-                <div class="info-box-title" style="color: #1565C0;">📞 ติดต่อร้าน</div>
-                <div class="info-box-content" style="color: #0D47A1;">
-                    โทร: <strong>094-325-9578</strong><br>
-                    LINE: <strong>@kanhan2024</strong>
+                
+                <!-- ยอดรวม -->
+                <div class="receipt-total">
+                    <span class="receipt-total-label">💰 รวมทั้งหมด</span>
+                    <span class="receipt-total-value" id="receiptTotal">0 ฿</span>
+                </div>
+                
+                <!-- หมายเหตุสำหรับตึก 9 -->
+                <div class="receipt-note">
+                    <div class="receipt-note-title">📢 เงื่อนไขการจัดส่ง (ตึก 9)</div>
+                    <div class="receipt-note-item">• 🏢 ลูกค้าตึก 9 - ส่งผ้าฟรี!</div>
+                    <div class="receipt-note-item">• 🚗 ส่งผ้าคืนลูกค้าไม่เกิน 18:00 น.</div>
+                </div>
+                
+                <!-- ปุ่มดำเนินการ -->
+                <div class="receipt-actions">
+                    <button class="receipt-btn receipt-btn-primary" onclick="saveReceipt()">
+                        <span>📸</span> บันทึกภาพหน้าจอ
+                    </button>
+                    <button class="receipt-btn receipt-btn-secondary" onclick="startNewOrder()">
+                        <span>🔄</span> ทำรายการใหม่
+                    </button>
+                </div>
+                
+                <!-- Footer -->
+                <div class="receipt-footer">
+                    <div class="receipt-footer-text">กรุณาเก็บใบนี้ไว้เป็นหลักฐาน</div>
+                    <div class="receipt-footer-contact">📞 094-325-9578 | 💬 LINE: @kanhan2024</div>
                 </div>
             </div>
         </div>
@@ -1840,47 +2023,105 @@
                 'wash_separate_dry_together': 'ซักแยก + อบรวม'
             };
             
-            document.getElementById('receiptQueue').textContent = '#' + state.queueNumber;
+            // สร้างหมายเลขออเดอร์
+            const orderId = 'KY-' + now.toISOString().slice(2,10).replace(/-/g,'') + '-' + now.toTimeString().slice(0,8).replace(/:/g,'');
+            document.getElementById('receiptOrderId').textContent = orderId;
             
-            let html = `
-                <div class="receipt-row">
-                    <span class="label">📅 วันที่</span>
-                    <span class="value">${now.toLocaleDateString('th-TH')}</span>
-                </div>
-                <div class="receipt-row">
-                    <span class="label">⏰ เวลา</span>
-                    <span class="value">${now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })} น.</span>
-                </div>
-                <div class="receipt-row">
-                    <span class="label">📱 เบอร์โทร</span>
-                    <span class="value">${state.phone}</span>
-                </div>`;
+            // วันที่และเวลา
+            const dateTimeStr = now.toLocaleDateString('th-TH') + ' เวลา ' + now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) + ' น.';
+            document.getElementById('receiptDateTime').textContent = dateTimeStr;
             
-            // เพิ่ม LINE ID ถ้ามี
-            if (state.lineId && state.lineId.trim() !== '') {
-                html += `
-                <div class="receipt-row">
-                    <span class="label">💬 LINE ID</span>
-                    <span class="value">${state.lineId}</span>
-                </div>`;
+            // ข้อมูลบริการ
+            document.getElementById('receiptBasketCount').textContent = state.basketCount + ' ตะกร้า';
+            document.getElementById('receiptServiceType').textContent = serviceNames[state.serviceType];
+            
+            // รายละเอียดบริการ
+            let detailsHtml = '';
+            
+            // แสดงรายละเอียดซัก
+            if (state.serviceType === 'wash_only' || state.serviceType === 'wash_dry' || state.serviceType === 'wash_separate_dry_together') {
+                const waterTempNames = { cold: 'น้ำเย็น', warm: 'น้ำอุ่น', hot: 'น้ำร้อน' };
+                const detergentNames = { own: 'น้ำยาตัวเอง', shop: 'น้ำยาของร้าน (+10฿)' };
+                
+                state.baskets.forEach((b, i) => {
+                    const washPrice = PRICING.wash[b.detergent][b.washSize][b.waterTemp];
+                    detailsHtml += `
+                        <div class="receipt-item-card">
+                            <div class="receipt-item-header">
+                                <span class="receipt-item-title">🧺 ตะกร้าที่ ${i + 1}</span>
+                                <span class="receipt-item-price">${washPrice} ฿</span>
+                            </div>
+                            <div class="receipt-item-details">
+                                <span>🏷️ ${b.washSize}</span>
+                                <span>💧 ${waterTempNames[b.waterTemp]}</span>
+                                <span>🧴 ${detergentNames[b.detergent]}</span>
+                            </div>
+                        </div>`;
+                });
             }
             
-            html += `
-                <div class="receipt-row">
-                    <span class="label">🧺 บริการ</span>
-                    <span class="value">${serviceNames[state.serviceType]}</span>
-                </div>
-                <div class="receipt-row">
-                    <span class="label">📦 จำนวน</span>
-                    <span class="value">${state.basketCount} ตะกร้า</span>
-                </div>
-                <div class="receipt-row">
-                    <span class="label">💳 การชำระ</span>
-                    <span class="value" style="color: #4CAF50;">โอนเงินแล้ว ✅</span>
-                </div>`;
+            // แสดงรายละเอียดอบ
+            if (state.serviceType === 'dry_only' || state.serviceType === 'wash_dry') {
+                const dryTempNames = { low: 'อุณหภูมิต่ำ', high: 'อุณหภูมิสูง' };
+                
+                state.baskets.forEach((b, i) => {
+                    const dryPrice = PRICING.dry[b.drySize].price + b.extraTime;
+                    const totalTime = PRICING.dry[b.drySize].baseTime + Math.floor(b.extraTime / 10) * 6;
+                    detailsHtml += `
+                        <div class="receipt-item-card">
+                            <div class="receipt-item-header">
+                                <span class="receipt-item-title">🌀 อบเครื่องที่ ${i + 1}</span>
+                                <span class="receipt-item-price">${dryPrice} ฿</span>
+                            </div>
+                            <div class="receipt-item-details">
+                                <span>🏷️ ขนาด ${b.drySize}</span>
+                                <span>⏱️ ${totalTime} นาที</span>
+                                <span>🌡️ ${dryTempNames[b.dryTemp]}</span>
+                            </div>
+                        </div>`;
+                });
+            }
             
-            document.getElementById('receiptDetails').innerHTML = html;
+            // ซักแยก + อบรวม
+            if (state.serviceType === 'wash_separate_dry_together' && state.combinedDry) {
+                const cd = state.combinedDry;
+                const dryTempNames = { low: 'อุณหภูมิต่ำ', high: 'อุณหภูมิสูง' };
+                const dryPrice = PRICING.dry[cd.drySize].price + cd.extraTime;
+                const totalTime = PRICING.dry[cd.drySize].baseTime + Math.floor(cd.extraTime / 10) * 6;
+                detailsHtml += `
+                    <div class="receipt-item-card">
+                        <div class="receipt-item-header">
+                            <span class="receipt-item-title">🌀 อบรวม ${state.basketCount} ตะกร้า</span>
+                            <span class="receipt-item-price">${dryPrice} ฿</span>
+                        </div>
+                        <div class="receipt-item-details">
+                            <span>🏷️ ขนาด ${cd.drySize}</span>
+                            <span>⏱️ ${totalTime} นาที</span>
+                            <span>🌡️ ${dryTempNames[cd.dryTemp]}</span>
+                        </div>
+                    </div>`;
+            }
+            
+            document.getElementById('receiptServiceDetails').innerHTML = detailsHtml;
+            
+            // ข้อมูลติดต่อ
+            document.getElementById('receiptPhone').textContent = state.phone || '-';
+            document.getElementById('receiptLineId').textContent = state.lineId || '-';
+            document.getElementById('receiptPayment').textContent = '✅ สแกน QR แล้ว';
+            
+            // ยอดรวม
             document.getElementById('receiptTotal').textContent = calc.total + ' ฿';
+        }
+        
+        function saveReceipt() {
+            // แจ้งเตือนให้ผู้ใช้ screenshot
+            alert('กรุณากดปุ่ม Screenshot บนมือถือของคุณเพื่อบันทึกใบยืนยันค่ะ 📸');
+        }
+        
+        function startNewOrder() {
+            if (confirm('ต้องการทำรายการใหม่หรือไม่?')) {
+                location.reload();
+            }
         }
         
         // ==================== INIT ====================
