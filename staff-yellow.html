@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🧹 แม่บ้าน - บัตรสีเหลือง (ตึก 9) - ร้านกังหันดีวอช</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Sarabun', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 0;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #607D8B, #78909C);
+            padding: 16px 20px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-title {
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .header-subtitle {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-top: 4px;
+        }
+        .header-badge {
+            display: inline-block;
+            background: white;
+            color: #607D8B;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: 6px;
+        }
+        .header-building {
+            display: inline-block;
+            background: #FF9800;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        
+        .container {
+            padding: 16px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        /* Order Card */
+        .order-card {
+            background: linear-gradient(135deg, #2d3436, #636e72);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 2px solid #78909C;
+        }
+        
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px dashed rgba(255,255,255,0.2);
+        }
+        .order-id {
+            font-size: 20px;
+            font-weight: 700;
+            color: #B0BEC5;
+        }
+        .order-time {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+        
+        .payment-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+        }
+        
+        .building-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #FF9800, #FFB74D);
+            margin-left: 8px;
+        }
+        
+        /* Photo Section */
+        .photo-section {
+            margin: 12px 0;
+        }
+        .photo-label {
+            font-size: 12px;
+            color: #B0BEC5;
+            margin-bottom: 8px;
+        }
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+        .photo-item {
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: rgba(255,255,255,0.7);
+        }
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        .photo-item .icon {
+            font-size: 32px;
+            margin-bottom: 4px;
+        }
+        
+        /* Info Sections */
+        .info-section {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 12px;
+            margin: 12px 0;
+        }
+        .info-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #B0BEC5;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            font-size: 13px;
+            border-bottom: 1px dashed rgba(255,255,255,0.1);
+        }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            opacity: 0.7;
+        }
+        .info-value {
+            font-weight: 600;
+        }
+        
+        /* Delivery Info */
+        .delivery-section {
+            background: rgba(255,152,0,0.15);
+            border-radius: 10px;
+            padding: 12px;
+            margin: 12px 0;
+            border-left: 4px solid #FF9800;
+        }
+        .delivery-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #FFB74D;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .delivery-info {
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .delivery-highlight {
+            background: rgba(255,152,0,0.3);
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin-top: 8px;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        /* Bilingual Section */
+        .bilingual-section {
+            margin: 16px 0;
+        }
+        .lang-tab {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .lang-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .lang-btn.active {
+            background: #607D8B;
+            color: white;
+        }
+        .lang-btn:not(.active) {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+        .lang-content {
+            display: none;
+        }
+        .lang-content.active {
+            display: block;
+        }
+        
+        /* Myanmar Text */
+        .myanmar-text {
+            font-family: 'Padauk', 'Myanmar Text', sans-serif;
+            line-height: 1.8;
+        }
+        
+        /* Service Details */
+        .service-item {
+            background: rgba(255,255,255,0.08);
+            border-radius: 8px;
+            padding: 10px;
+            margin: 6px 0;
+        }
+        .service-item-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+        .service-item-title {
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .service-item-price {
+            color: #2ecc71;
+            font-weight: 600;
+        }
+        .service-item-details {
+            font-size: 11px;
+            opacity: 0.7;
+        }
+        
+        /* Total Section */
+        .total-section {
+            background: linear-gradient(135deg, #607D8B, #78909C);
+            border-radius: 12px;
+            padding: 16px;
+            margin: 16px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .total-label {
+            font-size: 14px;
+        }
+        .total-value {
+            font-size: 28px;
+            font-weight: 700;
+        }
+        
+        /* Action Buttons */
+        .action-section {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 2px dashed rgba(255,255,255,0.2);
+        }
+        .action-title {
+            font-size: 14px;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 12px;
+            color: #B0BEC5;
+        }
+        
+        .action-btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+        .action-btn:active {
+            transform: scale(0.98);
+        }
+        
+        .btn-complete-paid {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+            box-shadow: 0 4px 15px rgba(39,174,96,0.4);
+        }
+        
+        /* Modal Overlay */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-overlay.show {
+            display: flex;
+        }
+        .modal-content {
+            background: linear-gradient(135deg, #2d3436, #636e72);
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 350px;
+            width: 100%;
+            text-align: center;
+        }
+        .modal-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .modal-message {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .modal-btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .modal-btn-cancel {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+        .modal-btn-confirm {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+        }
+        
+        /* Success State */
+        .success-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 1001;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 20px;
+        }
+        .success-overlay.show {
+            display: flex;
+        }
+        .success-icon {
+            font-size: 60px;
+            margin-bottom: 16px;
+            animation: bounceIn 0.5s ease;
+        }
+        .success-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #2ecc71;
+        }
+        .success-message {
+            font-size: 13px;
+            opacity: 0.9;
+            text-align: center;
+            line-height: 1.6;
+        }
+        @keyframes bounceIn {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        .hidden { display: none !important; }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Padauk:wght@400;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="header">
+        <div class="header-title">🧹 ระบบแม่บ้าน - บัตรสีเหลือง</div>
+        <div class="header-subtitle">บริการลูกค้าตึก 9 | Staff Maid Interface</div>
+        <div>
+            <span class="header-badge">🟨 บัตรเหลือง</span>
+            <span class="header-building">🏢 ตึก 9</span>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- Order Card -->
+        <div class="order-card">
+            <div class="order-header">
+                <div>
+                    <div class="order-id" id="orderId">KY-080125-123456</div>
+                    <div class="order-time">08/01/2568 เวลา 09:30 น.</div>
+                </div>
+                <div>
+                    <div class="payment-badge">
+                        <span>✅</span> โอนเงินแล้ว
+                    </div>
+                    <div class="building-badge">
+                        <span>🏢</span> ตึก 9
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Photo Section -->
+            <div class="photo-section">
+                <div class="photo-label">📷 รูปถ่ายจากลูกค้า</div>
+                <div class="photo-grid">
+                    <div class="photo-item">
+                        <div class="icon">🎫</div>
+                        <span>บัตรคิว + ตะกร้า</span>
+                    </div>
+                    <div class="photo-item">
+                        <div class="icon">🧾</div>
+                        <span>สลิปโอนเงิน</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Customer Info -->
+            <div class="info-section">
+                <div class="info-title">👤 ข้อมูลลูกค้า</div>
+                <div class="info-row">
+                    <span class="info-label">ประเภท</span>
+                    <span class="info-value" id="customerType">🏢 ลูกค้าตึก 9</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">เบอร์โทร</span>
+                    <span class="info-value" id="customerPhone">089-460-3746</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">LINE ID</span>
+                    <span class="info-value" id="customerLine">sakpol_dev</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">บัตรคิวที่</span>
+                    <span class="info-value" id="queueNumber">#8 (สีเหลือง)</span>
+                </div>
+            </div>
+            
+            <!-- Delivery Info -->
+            <div class="delivery-section">
+                <div class="delivery-title">🏢 ข้อมูลการจัดส่ง (ตึก 9)</div>
+                <div class="delivery-info">
+                    📍 <strong>จุดรับผ้า:</strong> ตึก 9 (จุดบริการ)<br>
+                    📍 <strong>จุดส่งผ้าคืน:</strong> ตึก 9 (จุดบริการ)<br>
+                    💰 <strong>ค่าจัดส่ง:</strong> <span style="color: #2ecc71;">ฟรี!</span>
+                </div>
+                <div class="delivery-highlight">
+                    ⏰ ส่งผ้าคืนไม่เกิน 18:00 น.
+                </div>
+            </div>
+            
+            <!-- Service Details -->
+            <div class="info-section">
+                <div class="info-title">🧺 รายละเอียดบริการ</div>
+                <div class="info-row">
+                    <span class="info-label">ประเภท</span>
+                    <span class="info-value">ซัก + อบ</span>
+                </div>
+                
+                <div class="service-item">
+                    <div class="service-item-header">
+                        <span class="service-item-title">🧺 ซัก 10kg</span>
+                        <span class="service-item-price">50 ฿</span>
+                    </div>
+                    <div class="service-item-details">น้ำยาร้าน | น้ำเย็น</div>
+                </div>
+                
+                <div class="service-item">
+                    <div class="service-item-header">
+                        <span class="service-item-title">🌀 อบ 16kg</span>
+                        <span class="service-item-price">50 ฿</span>
+                    </div>
+                    <div class="service-item-details">อุณหภูมิสูง | 30 นาที</div>
+                </div>
+            </div>
+            
+            <!-- Total -->
+            <div class="total-section">
+                <span class="total-label">💰 ยอดรวม (ฟรีค่าส่ง)</span>
+                <span class="total-value" id="totalAmount">100 ฿</span>
+            </div>
+            
+            <!-- Bilingual Info for Maid -->
+            <div class="bilingual-section">
+                <div class="lang-tab">
+                    <button class="lang-btn active" onclick="switchLang('th')">🇹🇭 ภาษาไทย</button>
+                    <button class="lang-btn" onclick="switchLang('mm')">🇲🇲 မြန်မာ</button>
+                </div>
+                
+                <div class="lang-content active" id="langTh">
+                    <div class="info-section">
+                        <div class="info-title">📋 สรุปงาน</div>
+                        <div style="font-size: 13px; line-height: 1.8;">
+                            • <strong>บัตรคิว:</strong> #8 (สีเหลือง - ตึก 9)<br>
+                            • <strong>ซัก:</strong> 10kg น้ำยาร้าน น้ำเย็น<br>
+                            • <strong>อบ:</strong> 16kg อุณหภูมิสูง 30 นาที<br>
+                            • <strong>ยอดรวม:</strong> 100 บาท<br>
+                            • <strong>ค่าส่ง:</strong> ฟรี (ตึก 9)<br>
+                            • <strong>สถานะ:</strong> โอนเงินแล้ว ✅<br>
+                            • <strong>ส่งคืน:</strong> ตึก 9 ไม่เกิน 18:00 น.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="lang-content" id="langMm">
+                    <div class="info-section">
+                        <div class="info-title">📋 အလုပ်အကျဉ်းချုပ်</div>
+                        <div class="myanmar-text" style="font-size: 14px; line-height: 2;">
+                            • <strong>လက်မှတ်နံပါတ်:</strong> #8 (အဖြူရောင် - အဆောက်အဦ 9)<br>
+                            • <strong>အဝတ်လျှော်:</strong> 10kg ဆိုင်ဆပ်ပြာ ရေအေး<br>
+                            • <strong>အခြောက်ခံ:</strong> 16kg အပူချိန်မြင့် 30 မိနစ်<br>
+                            • <strong>စုစုပေါင်း:</strong> 100 ဘတ်<br>
+                            • <strong>ပို့ခ:</strong> အခမဲ့ (အဆောက်အဦ 9)<br>
+                            • <strong>အခြေအနေ:</strong> ငွေလွှဲပြီး ✅<br>
+                            • <strong>ပြန်ပို့:</strong> အဆောက်အဦ 9 - 18:00 နာရီ မတိုင်မီ
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="action-section">
+                <div class="action-title">✅ ซัก-อบ เสร็จแล้ว กดปุ่มด้านล่าง</div>
+                
+                <button class="action-btn btn-complete-paid" onclick="showConfirmation()">
+                    <span>✅</span> แจ้งลูกค้า: ผ้าเสร็จแล้ว พร้อมส่งคืน
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Confirmation Modal (Step 1) -->
+    <div class="modal-overlay" id="modalStep1">
+        <div class="modal-content">
+            <div class="modal-icon">✅</div>
+            <div class="modal-title">แจ้งลูกค้า: ผ้าเสร็จแล้ว</div>
+            <div class="modal-message">
+                ยืนยันแจ้งลูกค้าว่าผ้าเสร็จแล้ว?<br>
+                <small style="opacity:0.7;">(จะส่งผ้าคืนที่ตึก 9 ไม่เกิน 18:00 น.)</small>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-cancel" onclick="closeModal()">ยกเลิก</button>
+                <button class="modal-btn modal-btn-confirm" onclick="showConfirmationStep2()">ยืนยัน</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Confirmation Modal (Step 2) -->
+    <div class="modal-overlay" id="modalStep2">
+        <div class="modal-content">
+            <div class="modal-icon">🔔</div>
+            <div class="modal-title">ยืนยันอีกครั้ง!</div>
+            <div class="modal-message">
+                <strong style="color: #e74c3c;">⚠️ กรุณาตรวจสอบให้แน่ใจ</strong><br><br>
+                ระบบจะส่งข้อความไปยัง:<br>
+                • 📱 ไลน์ลูกค้า<br>
+                • 👨‍💼 ไลน์แอดมิน
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-cancel" onclick="closeModal()">ยกเลิก</button>
+                <button class="modal-btn modal-btn-confirm" onclick="executeAction()">✅ ยืนยันส่งข้อความ</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Success Overlay with Message Preview -->
+    <div class="success-overlay" id="successOverlay">
+        <div style="background: linear-gradient(135deg, #2d3436, #636e72); border-radius: 16px; padding: 24px; max-width: 380px; width: 90%; max-height: 90vh; overflow-y: auto;">
+            <div class="success-icon">✅</div>
+            <div class="success-title">ส่งข้อความสำเร็จ!</div>
+            <div class="success-message" id="successMsg">
+                ระบบได้ส่งข้อความแจ้งลูกค้าและแอดมินเรียบร้อยแล้ว
+            </div>
+            
+            <!-- Message Preview After Success -->
+            <div style="margin-top: 20px; text-align: left;">
+                <div style="font-size: 12px; color: #f39c12; margin-bottom: 8px;">📱 ข้อความที่ส่งถึงลูกค้า</div>
+                <div id="successCustomerPreview" style="font-size: 11px; line-height: 1.6; background: rgba(39,174,96,0.2); padding: 10px; border-radius: 8px; border-left: 3px solid #27ae60; max-height: 150px; overflow-y: auto;">
+                </div>
+                
+                <div style="font-size: 12px; color: #3498db; margin: 12px 0 8px 0;">👨‍💼 ข้อความที่ส่งถึงแอดมิน</div>
+                <div id="successAdminPreview" style="font-size: 11px; line-height: 1.6; background: rgba(52,152,219,0.2); padding: 10px; border-radius: 8px; border-left: 3px solid #3498db; max-height: 150px; overflow-y: auto;">
+                </div>
+            </div>
+            
+            <button onclick="closeSuccessOverlay()" style="margin-top: 20px; width: 100%; padding: 12px; background: linear-gradient(135deg, #27ae60, #2ecc71); border: none; border-radius: 10px; color: white; font-size: 14px; font-weight: 600; cursor: pointer;">
+                ✓ ปิด
+            </button>
+        </div>
+    </div>
+    
+    <script>
+        // Function to get current date and time in Thai format
+        function getCurrentDateTime() {
+            const now = new Date();
+            const day = String(now.getDate()).padStart(2, '0');
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const year = (now.getFullYear() + 543).toString().slice(-2);
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            return `${day}/${month}/${year} เวลา ${hours}:${minutes} น.`;
+        }
+        
+        const orderData = {
+            orderId: 'KY-080125-123456',
+            queueNumber: '8',
+            cardColor: 'เหลือง',
+            building: 'ตึก 9',
+            phone: '089-460-3746',
+            lineId: 'sakpol_dev',
+            total: 100
+        };
+        
+        // Messages Templates
+        const messages = {
+            customer: `🧺 <strong>ร้านกังหันดีวอช</strong><br><br>
+ผ้าของคุณลูกค้าเสร็จเรียบร้อยแล้วค่ะ ✨<br><br>
+🏢 ลูกค้าจะได้รับผ้าคืนที่ <strong>ตึก 9</strong><br>
+⏰ <strong>ไม่เกิน 18:00 น.</strong> ของวันนี้ค่ะ<br><br>
+📞 สอบถามเพิ่มเติม:<br>
+• โทร: <strong>094-325-9578</strong><br>
+• LINE: <strong>@kanhan2024</strong><br><br>
+ขอบคุณที่ใช้บริการค่ะ 🙏`,
+            
+            admin: `✅ <strong>ผ้าเสร็จแล้ว - พร้อมส่งคืน</strong> 🏢<br>
+━━━━━━━━━━━━━━<br>
+🎫 บัตรคิว: #${orderData.queueNumber} (สี${orderData.cardColor})<br>
+🏢 ลูกค้า: ${orderData.building}<br>
+📞 เบอร์: ${orderData.phone}<br>
+💬 LINE: ${orderData.lineId}<br>
+💰 ยอด: ${orderData.total} บาท<br>
+💳 <span style="color:#27ae60;font-weight:bold;">โอนเงินแล้ว ✅</span><br>
+━━━━━━━━━━━━━━<br>
+📍 ส่งคืน: ${orderData.building} ไม่เกิน 18:00 น.<br>
+━━━━━━━━━━━━━━<br>
+🕐 ${getCurrentDateTime()}`
+        };
+        
+        // Switch language
+        function switchLang(lang) {
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.lang-content').forEach(content => content.classList.remove('active'));
+            
+            event.currentTarget.classList.add('active');
+            document.getElementById('lang' + (lang === 'th' ? 'Th' : 'Mm')).classList.add('active');
+        }
+        
+        // Show confirmation modal (Step 1)
+        function showConfirmation() {
+            document.getElementById('modalStep1').classList.add('show');
+        }
+        
+        // Show step 2 confirmation
+        function showConfirmationStep2() {
+            document.getElementById('modalStep1').classList.remove('show');
+            document.getElementById('modalStep2').classList.add('show');
+        }
+        
+        // Execute action
+        function executeAction() {
+            document.getElementById('modalStep2').classList.remove('show');
+            
+            // Update preview in success overlay
+            document.getElementById('successCustomerPreview').innerHTML = messages.customer;
+            document.getElementById('successAdminPreview').innerHTML = messages.admin;
+            
+            document.getElementById('successOverlay').classList.add('show');
+            
+            // Log action (for n8n integration)
+            console.log('Action executed: White Card (Building 9) - Laundry Complete');
+            console.log('Message to customer:', messages.customer);
+            console.log('Message to admin:', messages.admin);
+        }
+        
+        // Close success overlay
+        function closeSuccessOverlay() {
+            document.getElementById('successOverlay').classList.remove('show');
+        }
+        
+        // Close modal
+        function closeModal() {
+            document.getElementById('modalStep1').classList.remove('show');
+            document.getElementById('modalStep2').classList.remove('show');
+        }
+    </script>
+</body>
+</html>
