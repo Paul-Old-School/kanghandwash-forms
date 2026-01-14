@@ -681,9 +681,8 @@
             <span id="stepLabel2">ตะกร้า</span>
             <span id="stepLabel3">บริการ</span>
             <span id="stepLabel4">สรุป</span>
-            <span id="stepLabel5">ข้อมูล</span>
-            <span id="stepLabel6">ชำระเงิน</span>
-            <span id="stepLabel7">เสร็จสิ้น</span>
+            <span id="stepLabel5">ชำระเงิน</span>
+            <span id="stepLabel6">เสร็จสิ้น</span>
         </div>
         <div class="step-indicator">
             <div class="step-dot active" id="stepDot1"></div>
@@ -692,7 +691,6 @@
             <div class="step-dot" id="stepDot4"></div>
             <div class="step-dot" id="stepDot5"></div>
             <div class="step-dot" id="stepDot6"></div>
-            <div class="step-dot" id="stepDot7"></div>
         </div>
         
         <!-- Step 1: ถ่ายรูป -->
@@ -896,12 +894,12 @@
             </button>
         </div>
         
-        <!-- Step 5: ข้อมูลติดต่อ -->
+        <!-- Step 5: ข้อมูลติดต่อ & ชำระเงิน -->
         <div id="step5" class="hidden">
             <button class="back-btn" onclick="goBack(4)">← กลับ</button>
             <div class="card">
-                <div class="card-title"><span class="num">5</span> ข้อมูลติดต่อ</div>
-                <div class="card-subtitle">กรอกข้อมูลเพื่อรับการแจ้งเตือน</div>
+                <div class="card-title"><span class="num">5</span> ข้อมูลติดต่อ & ชำระเงิน</div>
+                <div class="card-subtitle">กรอกข้อมูลและชำระเงิน</div>
                 
                 <div class="form-group">
                     <div class="form-label">📱 เบอร์โทรศัพท์ *</div>
@@ -922,13 +920,8 @@
                     </div>
                 </div>
             </div>
-        </div>
-        
-        <!-- Step 6: ชำระเงิน -->
-        <div id="step6" class="hidden">
-            <button class="back-btn" onclick="goBack(5)">← กลับ</button>
+            
             <div class="card">
-                <div class="card-title"><span class="num">6</span> ชำระเงิน</div>
                 
                 <div class="summary-box" id="summaryBox">
                     <!-- Dynamic summary content -->
@@ -999,8 +992,8 @@
             </div>
         </div>
         
-        <!-- Step 7: ใบยืนยัน -->
-        <div id="step7" class="hidden">
+        <!-- Step 6: ใบยืนยัน -->
+        <div id="step6" class="hidden">
             <div class="receipt-card">
                 <div class="receipt-header">
                     <div class="receipt-logo">🧺</div>
@@ -1728,7 +1721,7 @@
         
         // ==================== NAVIGATION ====================
         function updateStepIndicator() {
-            for (let i = 1; i <= 7; i++) {
+            for (let i = 1; i <= 6; i++) {
                 const dot = document.getElementById('stepDot' + i);
                 const label = document.getElementById('stepLabel' + i);
                 
@@ -1754,9 +1747,8 @@
                 case 2: enabled = state.basketChoice !== null; break;
                 case 3: enabled = state.serviceType !== null; break;
                 case 4: enabled = false; break; // หน้าสรุป - มีปุ่มยืนยันแยก
-                case 5: enabled = state.phone.length >= 12; break;
-                case 6: enabled = state.slipUploaded; break;
-                case 7: enabled = false; btn.textContent = '✅ เสร็จสิ้น'; break;
+                case 5: enabled = state.phone.length >= 12 && state.slipUploaded; break;
+                case 6: enabled = false; btn.textContent = '✅ เสร็จสิ้น'; break;
             }
             
             btn.disabled = !enabled;
@@ -1768,10 +1760,10 @@
                 btn.style.display = 'block';
             }
             
-            if (state.currentStep === 6 && enabled) {
+            if (state.currentStep === 5 && enabled) {
                 btn.textContent = '✅ ยืนยันและรับใบยืนยัน';
                 btn.classList.add('green');
-            } else if (state.currentStep < 7) {
+            } else if (state.currentStep < 6) {
                 btn.textContent = 'ถัดไป →';
                 btn.classList.remove('green');
             }
@@ -1824,9 +1816,10 @@
         }
         
         function goToContactStep() {
-            // จากหน้าสรุป ไปหน้าข้อมูลติดต่อ
+            // จากหน้าสรุป ไปหน้าข้อมูลติดต่อ & ชำระเงิน
             hideAllSteps();
             state.currentStep = 5;
+            updatePaymentSummary();
             document.getElementById('step5').classList.remove('hidden');
             updateStepIndicator();
             updateNextButton();
@@ -1841,7 +1834,6 @@
             document.getElementById('step4Summary').classList.add('hidden');
             document.getElementById('step5').classList.add('hidden');
             document.getElementById('step6').classList.add('hidden');
-            document.getElementById('step7').classList.add('hidden');
         }
         
         function nextStep() {
@@ -1858,13 +1850,11 @@
                 renderSummaryPage();
                 document.getElementById('step4Summary').classList.remove('hidden');
             } else if (state.currentStep === 5) {
+                updatePaymentSummary();
                 document.getElementById('step5').classList.remove('hidden');
             } else if (state.currentStep === 6) {
-                updatePaymentSummary();
-                document.getElementById('step6').classList.remove('hidden');
-            } else if (state.currentStep === 7) {
                 updateReceipt();
-                document.getElementById('step7').classList.remove('hidden');
+                document.getElementById('step6').classList.remove('hidden');
             } else {
                 document.getElementById('step' + state.currentStep).classList.remove('hidden');
             }
