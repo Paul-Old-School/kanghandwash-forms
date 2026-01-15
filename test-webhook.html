@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ทดสอบ Webhook - KanghanDwash</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { 
+            font-family: 'Sarabun', sans-serif; 
+            background: linear-gradient(135deg, #1a237e, #0d47a1);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            color: white;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 24px;
+        }
+        h1 { text-align: center; margin-bottom: 8px; }
+        .subtitle { text-align: center; opacity: 0.8; margin-bottom: 24px; }
+        .webhook-url {
+            background: rgba(0,0,0,0.3);
+            padding: 12px;
+            border-radius: 8px;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 12px;
+            margin-bottom: 20px;
+        }
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 12px;
+            font-family: inherit;
+        }
+        .btn-primary { background: #4CAF50; color: white; }
+        .btn-primary:hover { background: #43A047; }
+        .btn-secondary { background: #FF9800; color: white; }
+        .btn-secondary:hover { background: #F57C00; }
+        .btn-tertiary { background: #FFC107; color: #333; }
+        .btn-tertiary:hover { background: #FFB300; }
+        .result {
+            background: rgba(0,0,0,0.3);
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+        .result.show { display: block; }
+        .result.success { border-left: 4px solid #4CAF50; }
+        .result.error { border-left: 4px solid #f44336; }
+        .result pre {
+            white-space: pre-wrap;
+            word-break: break-all;
+            margin: 0;
+            font-size: 12px;
+        }
+        .loading { text-align: center; padding: 20px; }
+        .card-select {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .card-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 8px;
+            background: transparent;
+            color: white;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .card-btn.active { border-color: #4CAF50; background: rgba(76,175,80,0.3); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 ทดสอบ Webhook</h1>
+        <p class="subtitle">ส่งข้อมูล Order ไปยัง n8n</p>
+        
+        <div class="webhook-url">
+            <strong>Webhook URL:</strong><br>
+            https://schoolold.app.n8n.cloud/webhook-test/order-submit
+        </div>
+        
+        <p><strong>เลือกประเภทบัตร:</strong></p>
+        <div class="card-select">
+            <button class="card-btn active" onclick="selectCard('orange')" id="btn-orange">🟠 ส้ม</button>
+            <button class="card-btn" onclick="selectCard('blue')" id="btn-blue">🔵 ฟ้า</button>
+            <button class="card-btn" onclick="selectCard('yellow')" id="btn-yellow">🟡 เหลือง</button>
+        </div>
+        
+        <button class="btn btn-primary" onclick="sendTestOrder()">
+            📤 ส่ง Test Order
+        </button>
+        
+        <button class="btn btn-secondary" onclick="sendTestOrderMultiple()">
+            📤 ส่ง Test Order (หลายตะกร้า)
+        </button>
+        
+        <button class="btn btn-tertiary" onclick="sendMinimalTest()">
+            🔬 ส่ง Minimal Test
+        </button>
+        
+        <div id="loading" class="loading" style="display: none;">
+            ⏳ กำลังส่งข้อมูล...
+        </div>
+        
+        <div id="result" class="result">
+            <strong>ผลลัพธ์:</strong>
+            <pre id="resultText"></pre>
+        </div>
+    </div>
+
+    <script>
+        let selectedCard = 'orange';
+        
+        function selectCard(card) {
+            selectedCard = card;
+            document.querySelectorAll('.card-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('btn-' + card).classList.add('active');
+        }
+        
+        function generateOrderId() {
+            const now = new Date();
+            const prefix = selectedCard === 'orange' ? 'KO' : selectedCard === 'blue' ? 'KB' : 'KY';
+            const date = now.getFullYear().toString().slice(-2) + 
+                        String(now.getMonth() + 1).padStart(2, '0') + 
+                        String(now.getDate()).padStart(2, '0');
+            const time = String(now.getHours()).padStart(2, '0') + 
+                        String(now.getMinutes()).padStart(2, '0') +
+                        String(now.getSeconds()).padStart(2, '0');
+            return prefix + '-' + date + '-' + time;
+        }
+        
+        async function sendTestOrder() {
+            const data = {
+                cardType: selectedCard,
+                orderId: generateOrderId(),
+                timestamp: new Date().toISOString(),
+                customerType: "new",
+                basketCount: 1,
+                serviceType: "wash_dry",
+                baskets: [{
+                    detergent: "shop",
+                    waterTemp: "cold",
+                    washSize: "10kg",
+                    drySize: "16kg",
+                    extraTime: 0
+                }],
+                total: 100,
+                phone: "081-234-5678",
+                lineId: "@test_customer",
+                slipVerified: true,
+                // เฉพาะบัตรฟ้า
+                ...(selectedCard === 'blue' && {
+                    address: "123 หมู่บ้านทดสอบ",
+                    locationNote: "หน้าบ้าน",
+                    deliveryFee: 40
+                }),
+                // เฉพาะบัตรเหลือง
+                ...(selectedCard === 'yellow' && {
+                    building: "ตึก 9"
+                })
+            };
+            
+            await sendData(data);
+        }
+        
+        async function sendTestOrderMultiple() {
+            const data = {
+                cardType: selectedCard,
+                orderId: generateOrderId(),
+                timestamp: new Date().toISOString(),
+                customerType: "existing",
+                basketCount: 3,
+                serviceType: "wash_separate_dry_together",
+                baskets: [
+                    { detergent: "shop", waterTemp: "cold", washSize: "10kg", drySize: "16kg", extraTime: 0 },
+                    { detergent: "shop", waterTemp: "warm", washSize: "15kg", drySize: "16kg", extraTime: 0 },
+                    { detergent: "own", waterTemp: "cold", washSize: "10kg", drySize: "16kg", extraTime: 0 }
+                ],
+                combinedDry: {
+                    drySize: "25kg",
+                    extraTime: 10
+                },
+                total: 250,
+                phone: "089-876-5432",
+                lineId: "@vip_customer",
+                slipVerified: true,
+                ...(selectedCard === 'blue' && {
+                    address: "456 คอนโด ABC ห้อง 1234",
+                    locationNote: "ล็อบบี้ชั้น G",
+                    deliveryFee: 60
+                }),
+                ...(selectedCard === 'yellow' && {
+                    building: "ตึก 9"
+                })
+            };
+            
+            await sendData(data);
+        }
+        
+        async function sendMinimalTest() {
+            const data = {
+                test: true,
+                message: "Hello from KanghanDwash",
+                timestamp: new Date().toISOString()
+            };
+            
+            await sendData(data);
+        }
+        
+        async function sendData(data) {
+            const loading = document.getElementById('loading');
+            const result = document.getElementById('result');
+            const resultText = document.getElementById('resultText');
+            
+            loading.style.display = 'block';
+            result.classList.remove('show', 'success', 'error');
+            
+            try {
+                console.log('Sending data:', data);
+                
+                const response = await fetch('https://schoolold.app.n8n.cloud/webhook-test/order-submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const responseText = await response.text();
+                let responseData;
+                try {
+                    responseData = JSON.parse(responseText);
+                } catch {
+                    responseData = responseText;
+                }
+                
+                loading.style.display = 'none';
+                result.classList.add('show', 'success');
+                resultText.textContent = '✅ Status: ' + response.status + '\n\n' +
+                    '📤 ข้อมูลที่ส่ง:\n' + JSON.stringify(data, null, 2) + '\n\n' +
+                    '📥 Response:\n' + (typeof responseData === 'object' ? JSON.stringify(responseData, null, 2) : responseData);
+                    
+            } catch (error) {
+                loading.style.display = 'none';
+                result.classList.add('show', 'error');
+                resultText.textContent = '❌ Error: ' + error.message + '\n\n' +
+                    '📤 ข้อมูลที่พยายามส่ง:\n' + JSON.stringify(data, null, 2);
+            }
+        }
+    </script>
+</body>
+</html>
