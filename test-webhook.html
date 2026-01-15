@@ -91,7 +91,7 @@
         
         <div class="webhook-url">
             <strong>Webhook URL:</strong><br>
-            https://schoolold.app.n8n.cloud/webhook-test/order-submit
+            https://schoolold.app.n8n.cloud/webhook/order-submit
         </div>
         
         <p><strong>เลือกประเภทบัตร:</strong></p>
@@ -233,7 +233,7 @@
             try {
                 console.log('Sending data:', data);
                 
-                const response = await fetch('https://schoolold.app.n8n.cloud/webhook-test/order-submit', {
+                const response = await fetch('https://schoolold.app.n8n.cloud/webhook/order-submit', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
