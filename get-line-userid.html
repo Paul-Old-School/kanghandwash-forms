@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ดู LINE User ID - KanghanDwash</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Sarabun', -apple-system, sans-serif;
+            background: linear-gradient(135deg, #00B900, #00C300);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        .logo { font-size: 48px; margin-bottom: 10px; }
+        h1 { color: #00B900; margin-bottom: 20px; font-size: 24px; }
+        .profile-img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin: 20px auto;
+            border: 4px solid #00B900;
+        }
+        .name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .userid-box {
+            background: #f5f5f5;
+            border: 2px dashed #00B900;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .userid-label { font-size: 14px; color: #666; margin-bottom: 8px; }
+        .userid {
+            font-family: monospace;
+            font-size: 11px;
+            color: #333;
+            word-break: break-all;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            user-select: all;
+        }
+        .copy-btn {
+            background: #00B900;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            width: 100%;
+        }
+        .copy-btn:active { background: #009900; }
+        .copy-btn.copied { background: #4CAF50; }
+        .status {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .status.success { background: #e8f5e9; color: #2e7d32; }
+        .status.error { background: #ffebee; color: #c62828; }
+        .loading { color: #666; padding: 40px; }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #00B900;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .note {
+            font-size: 12px;
+            color: #999;
+            margin-top: 20px;
+            line-height: 1.5;
+        }
+        .warning-box {
+            background: #fff3e0;
+            border: 2px solid #ff9800;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .warning-box h3 { color: #e65100; margin-bottom: 10px; }
+        .warning-box p { font-size: 14px; color: #666; line-height: 1.6; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🧺</div>
+        <h1>KanghanDwash</h1>
+        
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>กำลังโหลด...</p>
+        </div>
+        
+        <div id="content" style="display: none;">
+            <img id="profileImg" class="profile-img" src="" alt="Profile">
+            <div id="displayName" class="name"></div>
+            
+            <div class="userid-box">
+                <div class="userid-label">LINE User ID ของคุณ:</div>
+                <div id="userId" class="userid"></div>
+            </div>
+            
+            <button id="copyBtn" class="copy-btn" onclick="copyUserId()">
+                📋 คัดลอก User ID
+            </button>
+            
+            <div id="status" class="status" style="display: none;"></div>
+            
+            <p class="note">
+                📌 ส่ง User ID นี้ให้เจ้าของร้านเพื่อรับการแจ้งเตือน Order
+            </p>
+        </div>
+        
+        <div id="notInLine" class="warning-box" style="display: none;">
+            <h3>⚠️ กรุณาเปิดใน LINE App</h3>
+            <p>หน้านี้ต้องเปิดผ่าน LINE App บนมือถือเท่านั้น</p>
+            <p style="margin-top: 15px; font-size: 13px;">
+                <strong>วิธีเปิด:</strong><br>
+                1. คัดลอก URL ของหน้านี้<br>
+                2. เปิด LINE App บนมือถือ<br>
+                3. วาง URL ในห้องแชทแล้วกดเปิดลิงก์
+            </p>
+        </div>
+    </div>
+
+    <!-- LIFF SDK -->
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    
+    <script>
+        // LIFF ID (ใช้ตัวเดียวกับ orange form)
+        const LIFF_ID = '2006782508-OWqnBN3a';
+        
+        let userId = '';
+        
+        // รอให้หน้าโหลดเสร็จ
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(checkAndInitLiff, 800);
+        });
+        
+        function checkAndInitLiff() {
+            if (typeof liff === 'undefined') {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('notInLine').style.display = 'block';
+                return;
+            }
+            initializeLiff();
+        }
+        
+        async function initializeLiff() {
+            const loading = document.getElementById('loading');
+            const content = document.getElementById('content');
+            const notInLine = document.getElementById('notInLine');
+            
+            try {
+                await liff.init({ liffId: LIFF_ID });
+                
+                if (!liff.isInClient()) {
+                    loading.style.display = 'none';
+                    notInLine.style.display = 'block';
+                    return;
+                }
+                
+                if (!liff.isLoggedIn()) {
+                    liff.login();
+                    return;
+                }
+                
+                const profile = await liff.getProfile();
+                userId = profile.userId;
+                
+                document.getElementById('profileImg').src = profile.pictureUrl || '';
+                document.getElementById('displayName').textContent = profile.displayName || '';
+                document.getElementById('userId').textContent = userId;
+                
+                loading.style.display = 'none';
+                content.style.display = 'block';
+                
+            } catch (error) {
+                console.error('LIFF Error:', error);
+                loading.innerHTML = '<p style="color:#c62828;">❌ ' + error.message + '</p>';
+            }
+        }
+        
+        function copyUserId() {
+            if (!userId) return;
+            
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(userId)
+                    .then(showCopySuccess)
+                    .catch(fallbackCopy);
+            } else {
+                fallbackCopy();
+            }
+        }
+        
+        function fallbackCopy() {
+            const textArea = document.createElement('textarea');
+            textArea.value = userId;
+            textArea.style.cssText = 'position:fixed;left:-9999px;top:0;';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                showCopySuccess();
+            } catch (err) {
+                showCopyError();
+            }
+            
+            document.body.removeChild(textArea);
+        }
+        
+        function showCopySuccess() {
+            const btn = document.getElementById('copyBtn');
+            const status = document.getElementById('status');
+            
+            btn.textContent = '✅ คัดลอกแล้ว!';
+            btn.classList.add('copied');
+            status.textContent = '✅ คัดลอกเรียบร้อย! ส่งให้เจ้าของร้านได้เลย';
+            status.className = 'status success';
+            status.style.display = 'block';
+            
+            setTimeout(() => {
+                btn.textContent = '📋 คัดลอก User ID';
+                btn.classList.remove('copied');
+            }, 3000);
+        }
+        
+        function showCopyError() {
+            const status = document.getElementById('status');
+            status.textContent = '⚠️ กดค้างที่ User ID แล้วเลือก "คัดลอก"';
+            status.className = 'status error';
+            status.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
