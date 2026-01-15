@@ -136,7 +136,7 @@
         
         .photo-preview { margin-top: 16px; display: none; }
         .photo-preview.show { display: block; }
-        .photo-preview img { width: 100%; border-radius: 12px; border: 2px solid #4CAF50; }
+        .photo-preview img { max-width: 100%; max-height: 300px; border-radius: 12px; border: 2px solid #4CAF50; display: block; margin: 0 auto; object-fit: contain; }
         .photo-preview .photo-info { background: #E8F5E9; border-radius: 8px; padding: 12px; margin-top: 12px; }
         .photo-preview .photo-info-row { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #2E7D32; margin-bottom: 4px; }
         .photo-preview .change-photo-btn { margin-top: 12px; width: 100%; padding: 10px; background: white; border: 1px solid #ddd; border-radius: 8px; font-size: 13px; color: #666; cursor: pointer; font-family: inherit; }
@@ -881,51 +881,53 @@
                         <div class="desc">ฝากซัก 2-10 ตะกร้า</div>
                     </button>
                 </div>
+            </div>
+        </div>
+
+        <!-- Step 4 Multiple: จำนวนและประเภทบริการ (สำหรับหลายตะกร้า) -->
+        <div id="step4Multiple" class="hidden">
+            <button class="back-btn" onclick="goBackToStep4()">← กลับ</button>
+            <div class="card">
+                <div class="card-title"><span class="num">4</span> จำนวนและประเภทบริการ</div>
+                <div class="card-subtitle">🧺🧺🧺 หลายตะกร้า - กำหนดจำนวนและเลือกบริการ</div>
                 
-                <!-- Multiple Basket Section (แสดงเมื่อเลือกหลายตะกร้า) -->
-                <div id="multipleBasketSection" class="hidden" style="margin-top: 16px;">
-                    <div class="card" style="background: #f8f9fa; margin-bottom: 0;">
-                        <div class="card-subtitle" style="margin-bottom: 12px;">🧺🧺🧺 หลายตะกร้า - กำหนดจำนวนและเลือกบริการ</div>
-                        
-                        <!-- Basket Counter -->
-                        <div class="basket-counter-section">
-                            <span class="counter-label">จำนวนตะกร้า</span>
-                            <div class="counter-controls">
-                                <button class="counter-btn" onclick="changeBasketCount(-1)" id="btnBasketMinus">−</button>
-                                <span class="counter-value" id="basketCountValue">2</span>
-                                <button class="counter-btn plus" onclick="changeBasketCount(1)">+</button>
-                            </div>
-                        </div>
-                        
-                        <!-- Service Type Selection for Multiple Baskets -->
-                        <div class="form-label" style="margin-top: 16px; margin-bottom: 12px;">เลือกประเภทบริการ</div>
-                        <div class="service-grid-multi">
-                            <div class="service-option-multi" onclick="selectMultiServiceType('wash_only')">
-                                <span class="check">✓</span>
-                                <div class="icon">🧺</div>
-                                <div class="title">ซักอย่างเดียว</div>
-                                <div class="desc">ซักแยกทุกตะกร้า</div>
-                            </div>
-                            <div class="service-option-multi" onclick="selectMultiServiceType('dry_only')">
-                                <span class="check">✓</span>
-                                <div class="icon">🌀</div>
-                                <div class="title">อบอย่างเดียว</div>
-                                <div class="desc">อบแยกทุกตะกร้า</div>
-                            </div>
-                            <div class="service-option-multi" onclick="selectMultiServiceType('wash_dry')">
-                                <span class="check">✓</span>
-                                <div class="icon">🧺🌀</div>
-                                <div class="title">ซัก + อบ</div>
-                                <div class="desc">ซักและอบแยกทุกตะกร้า</div>
-                            </div>
-                            <div class="service-option-multi highlight" onclick="selectMultiServiceType('wash_separate_dry_together')">
-                                <span class="special-badge">⭐ แนะนำ</span>
-                                <span class="check">✓</span>
-                                <div class="icon">🧺➡️🌀</div>
-                                <div class="title">ซักแยก + อบรวม</div>
-                                <div class="desc">ซักแยก แล้วนำมาอบรวมกัน</div>
-                            </div>
-                        </div>
+                <!-- Basket Counter -->
+                <div class="basket-counter-section">
+                    <span class="counter-label">จำนวนตะกร้า</span>
+                    <div class="counter-controls">
+                        <button class="counter-btn" onclick="changeBasketCount(-1)" id="btnBasketMinus">−</button>
+                        <span class="counter-value" id="basketCountValue">2</span>
+                        <button class="counter-btn plus" onclick="changeBasketCount(1)">+</button>
+                    </div>
+                </div>
+                
+                <!-- Service Type Selection for Multiple Baskets -->
+                <div class="form-label" style="margin-top: 16px; margin-bottom: 12px;">เลือกประเภทบริการ</div>
+                <div class="service-grid-multi">
+                    <div class="service-option-multi" onclick="selectMultiServiceType('wash_only')">
+                        <span class="check">✓</span>
+                        <div class="icon">🧺</div>
+                        <div class="title">ซักอย่างเดียว</div>
+                        <div class="desc">ซักแยกทุกตะกร้า</div>
+                    </div>
+                    <div class="service-option-multi" onclick="selectMultiServiceType('dry_only')">
+                        <span class="check">✓</span>
+                        <div class="icon">🌀</div>
+                        <div class="title">อบอย่างเดียว</div>
+                        <div class="desc">อบแยกทุกตะกร้า</div>
+                    </div>
+                    <div class="service-option-multi" onclick="selectMultiServiceType('wash_dry')">
+                        <span class="check">✓</span>
+                        <div class="icon">🧺🌀</div>
+                        <div class="title">ซัก + อบ</div>
+                        <div class="desc">ซักและอบแยกทุกตะกร้า</div>
+                    </div>
+                    <div class="service-option-multi highlight" onclick="selectMultiServiceType('wash_separate_dry_together')">
+                        <span class="special-badge">⭐ แนะนำ</span>
+                        <span class="check">✓</span>
+                        <div class="icon">🧺➡️🌀</div>
+                        <div class="title">ซักแยก + อบรวม</div>
+                        <div class="desc">ซักแยก แล้วนำมาอบรวมกัน</div>
                     </div>
                 </div>
             </div>
@@ -933,7 +935,7 @@
 
         <!-- Step 5: ประเภทบริการ -->
         <div id="step5" class="hidden">
-            <button class="back-btn" onclick="goBack(4)">← กลับ</button>
+            <button class="back-btn" onclick="goBackFromStep5()">← กลับ</button>
             
             <!-- For Single Basket -->
             <div id="singleBasketView" class="card">
@@ -1538,6 +1540,8 @@
             for (let i = 1; i <= 7; i++) {
                 document.getElementById('step' + i).classList.add('hidden');
             }
+            // Hide step4Multiple as well
+            document.getElementById('step4Multiple').classList.add('hidden');
         }
         
         // Step 1: Select Customer Type
@@ -1650,17 +1654,54 @@
             
             if (choice === 'single') {
                 state.basketCount = 1;
-                document.getElementById('multipleBasketSection').classList.add('hidden');
                 // ไปหน้าถัดไปทันทีสำหรับตะกร้าเดียว
                 setTimeout(() => {
                     goToStep5();
                 }, 300);
             } else {
                 state.basketCount = 2;
-                document.getElementById('multipleBasketSection').classList.remove('hidden');
-                document.getElementById('basketCountValue').textContent = state.basketCount;
-                document.getElementById('btnBasketMinus').disabled = state.basketCount <= 2;
+                // ไปหน้า step4Multiple สำหรับหลายตะกร้า
+                setTimeout(() => {
+                    goToStep4Multiple();
+                }, 300);
             }
+        }
+        
+        // Go to Step 4 Multiple (หลายตะกร้า)
+        function goToStep4Multiple() {
+            hideAllSteps();
+            document.getElementById('step4Multiple').classList.remove('hidden');
+            document.getElementById('basketCountValue').textContent = state.basketCount;
+            document.getElementById('btnBasketMinus').disabled = state.basketCount <= 2;
+            updateStepIndicators(4);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // Go back to Step 4 from Multiple
+        function goBackToStep4() {
+            hideAllSteps();
+            document.getElementById('step4').classList.remove('hidden');
+            // Reset selection
+            document.querySelectorAll('#step4 .customer-type-btn').forEach(btn => btn.classList.remove('active'));
+            state.basketChoice = null;
+            updateStepIndicators(4);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // Go back from Step 5
+        function goBackFromStep5() {
+            hideAllSteps();
+            if (state.basketChoice === 'multiple') {
+                // ถ้าเลือกหลายตะกร้า กลับไปหน้า step4Multiple
+                document.getElementById('step4Multiple').classList.remove('hidden');
+            } else {
+                // ถ้าเลือกตะกร้าเดียว กลับไปหน้า step4
+                document.getElementById('step4').classList.remove('hidden');
+                document.querySelectorAll('#step4 .customer-type-btn').forEach(btn => btn.classList.remove('active'));
+                state.basketChoice = null;
+            }
+            updateStepIndicators(4);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
         
         // Change Basket Count
@@ -2495,6 +2536,12 @@
         
         // Submit Order
         function submitOrder() {
+            // ดึงค่าจาก input fields ก่อน submit
+            const phoneEl = document.getElementById('phoneInput');
+            const lineIdEl = document.getElementById('lineIdInput');
+            state.phone = phoneEl ? phoneEl.value : '';
+            state.lineId = lineIdEl ? lineIdEl.value : '';
+            
             const orderData = {
                 ...state,
                 total: calculateTotal(),
@@ -2537,6 +2584,15 @@
         
         // แสดงข้อมูลใน Receipt
         function renderReceipt() {
+            // Debug log
+            console.log('=== renderReceipt Debug ===');
+            console.log('state.baskets:', state.baskets);
+            console.log('state.washService:', state.washService);
+            console.log('state.combinedDry:', state.combinedDry);
+            console.log('state.phone:', state.phone);
+            console.log('state.lineId:', state.lineId);
+            console.log('calculateTotal():', calculateTotal());
+            
             // หมายเลขออเดอร์และเวลา
             document.getElementById('receiptOrderId').textContent = state.orderId;
             const dt = state.orderTimestamp;
@@ -2585,8 +2641,8 @@
                     
                     // ถ้ามีอบแยก
                     if (state.washService === 'wash_dry' || state.washService === 'dry_only') {
-                        const dryPrice = PRICES.dry[b.drySize].base + (b.extraDryTime || 0);
-                        const dryTime = PRICES.dry[b.drySize].time + (b.extraDryTime || 0);
+                        const dryPrice = PRICES.dry[b.drySize].price + (b.extraTime || 0);
+                        const dryTime = PRICES.dry[b.drySize].baseTime + (b.extraTime || 0);
                         
                         detailsHtml += '<div class="receipt-item-card" style="background: rgba(255,152,0,0.2);">';
                         detailsHtml += '<div class="receipt-item-header">';
@@ -2603,8 +2659,8 @@
                 
                 // อบรวม (ถ้ามี)
                 if (state.washService === 'wash_separate_dry_together' && state.combinedDry) {
-                    const dryPrice = PRICES.dry[state.combinedDry.size].base + (state.combinedDry.extraTime || 0);
-                    const dryTime = PRICES.dry[state.combinedDry.size].time + (state.combinedDry.extraTime || 0);
+                    const dryPrice = PRICES.dry[state.combinedDry.drySize].price + (state.combinedDry.extraTime || 0);
+                    const dryTime = PRICES.dry[state.combinedDry.drySize].baseTime + (state.combinedDry.extraTime || 0);
                     
                     detailsHtml += '<div class="receipt-item-card" style="background: rgba(255,152,0,0.2);">';
                     detailsHtml += '<div class="receipt-item-header">';
@@ -2612,7 +2668,7 @@
                     detailsHtml += '<span class="receipt-item-price">' + dryPrice + ' ฿</span>';
                     detailsHtml += '</div>';
                     detailsHtml += '<div class="receipt-item-details">';
-                    detailsHtml += '<span>📏 ' + state.combinedDry.size + '</span>';
+                    detailsHtml += '<span>📏 ' + state.combinedDry.drySize + '</span>';
                     detailsHtml += '<span>⏱️ ' + dryTime + ' นาที</span>';
                     detailsHtml += '</div>';
                     detailsHtml += '</div>';
