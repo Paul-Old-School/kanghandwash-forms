@@ -2302,10 +2302,10 @@
     // คำนวณยอดรวม
     const total = calculateGrandTotal();
     
-    // กำหนด customerType: ถ้ามี deliveryCustomerType ใช้ค่านั้น ถ้าไม่มีใช้ 'new'
-    let customerType = 'new';
+   // กำหนด customerType ตามการเลือกจัดส่ง
+    let customerType = 'pickup'; // ไม่ต้องการจัดส่ง = มารับผ้าที่ร้าน
     if (state.wantDelivery && state.deliveryCustomerType) {
-        customerType = state.deliveryCustomerType;
+        customerType = state.deliveryCustomerType; // 'new' หรือ 'existing'
     }
     
     // เตรียมข้อมูลส่ง Webhook
