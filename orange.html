@@ -2295,26 +2295,55 @@
         }
 
         function submitOrder() {
-            const orderData = {
-                basketChoice: state.basketChoice, serviceType: state.serviceType, basketCount: state.basketCount,
-                baskets: state.baskets, drySize: state.drySize, dryTemp: state.dryTemp, extraTime: state.extraTime,
-                paymentMethod: state.paymentMethod, phone: document.getElementById('phoneInput').value,
-                lineId: document.getElementById('lineInput').value || '-', timestamp: new Date().toISOString(),
-                // Delivery info
-                wantDelivery: state.wantDelivery,
-                deliveryAddress: state.wantDelivery ? state.selectedAddressName : null,
-                deliveryFee: state.wantDelivery ? state.deliveryFee : 0,
-                locationNote: state.wantDelivery ? state.locationNote : null
-            };
-            console.log('Order Data:', orderData);
-            
-            // สร้างหมายเลขออเดอร์
-            state.orderId = generateOrderId();
-            state.orderTimestamp = new Date();
-            
-            // ไปหน้า Confirmation/Receipt
-            goToConfirmation();
-        }
+    // สร้างหมายเลขออเดอร์ก่อน
+    state.orderId = generateOrderId();
+    state.orderTimestamp = new Date();
+    
+    // คำนวณยอดรวม
+    const total = calculateGrandTotal();
+    
+    // กำหนด customerType: ถ้ามี deliveryCustomerType ใช้ค่านั้น ถ้าไม่มีใช้ 'new'
+    let customerType = 'new';
+    if (state.wantDelivery && state.deliveryCustomerType) {
+        customerType = state.deliveryCustomerType;
+    }
+    
+    // เตรียมข้อมูลส่ง Webhook
+    const webhookData = {
+        cardType: 'orange',
+        orderId: state.orderId,
+        timestamp: state.orderTimestamp.toISOString(),
+        customerType: customerType,
+        basketCount: state.basketCount,
+        serviceType: state.serviceType,
+        baskets: state.baskets,
+        total: total,
+        phone: document.getElementById('phoneInput').value || '-',
+        lineId: document.getElementById('lineInput').value || '-',
+        address: state.wantDelivery ? state.selectedAddressName : '-',
+        slipVerified: state.paymentMethod === 'qr',
+        paymentMethod: state.paymentMethod
+    };
+    
+    console.log('Sending to webhook:', webhookData);
+    
+    // ส่งข้อมูลไป Webhook
+    fetch('https://schoolold.app.n8n.cloud/webhook/order-submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(webhookData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Webhook response:', data);
+    })
+    .catch(error => {
+        console.error('Webhook error:', error);
+    });
+    
+    // ไปหน้า Confirmation/Receipt
+    goToConfirmation();
+}
         
         // สร้างหมายเลขออเดอร์
         function generateOrderId() {
