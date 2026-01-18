@@ -1230,6 +1230,47 @@
         // ==================== CONFIG ====================
         const IMAGE_UPLOAD_URL = 'https://script.google.com/macros/s/AKfycbw1i2ifnVdUk78BTCxm2gwF-dlmFYhcNjsv_oW6cNTQhHp-hbaI7tVsgOfJ7eBfD0sp/exec';
         
+        // พิกัดร้าน KanghanDwash
+        const SHOP_LOCATION = {
+            lat: 13.579274107801744,
+            lng: 100.83512556891797,
+            name: 'ร้านกังหันดีวอช',
+            address: '988/11 สิริอเวนิว ม.1 ต.บางบ่อ',
+            phone: '094-325-9578',
+            line: '@kanhan2024',
+            mapUrl: 'https://maps.app.goo.gl/SewLbP5pKUMF4PQd7'
+        };
+        
+        // เงื่อนไขค่าจัดส่ง (ไป-กลับ)
+        const DELIVERY_ZONES = [
+            { maxDistance: 2, fee: 40, feeText: 'รับ 20฿ + ส่ง 20฿' },
+            { maxDistance: 3, fee: 60, feeText: 'รับ 30฿ + ส่ง 30฿' }
+        ];
+        const MAX_DELIVERY_DISTANCE = 3; // กม.
+        
+        // ==================== LOCATION FUNCTIONS ====================
+        // คำนวณระยะทางระหว่าง 2 จุด (Haversine formula)
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // รัศมีโลก (กม.)
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+        
+        // หาค่าจัดส่งตามระยะทาง
+        function getDeliveryFee(distance) {
+            for (const zone of DELIVERY_ZONES) {
+                if (distance <= zone.maxDistance) {
+                    return { fee: zone.fee, feeText: zone.feeText, available: true };
+                }
+            }
+            return { fee: 0, feeText: '', available: false };
+        }
+        
         // ==================== IMAGE UPLOAD FUNCTIONS ====================
         async function uploadImageToGoogleDrive(base64Data, fileName, orderId, imageType, basketIndex = null) {
             try {
@@ -1426,6 +1467,8 @@
             deliveryFee: 0,
             locationNote: '',
             fullAddress: '',
+            userLocation: null, // { lat, lng }
+            distance: 0,
             // Payment state
             slipUploaded: false
         };
@@ -1573,13 +1616,150 @@
         }
 
         function requestDeliveryLocation() {
-            alert('📍 ในระบบจริง จะเปิดหน้า LINE Location Picker\n\nสำหรับ Demo: กดตกลงเพื่อจำลองว่าส่ง Location แล้ว');
-            state.selectedAddressId = 'new';
-            state.selectedAddressName = 'ที่อยู่ใหม่ (1.5 กม.)';
-            state.deliveryFee = 40;
-            document.getElementById('newAddressName').textContent = state.selectedAddressName;
-            document.getElementById('newAddressFee').textContent = state.deliveryFee + '฿';
-            document.getElementById('newAddressConfirm').classList.remove('hidden');
+            // ตรวจสอบว่า browser รองรับ Geolocation หรือไม่
+            if (!navigator.geolocation) {
+                alert('ขออภัยค่ะ 🙏\n\nเบราว์เซอร์ของคุณไม่รองรับการระบุตำแหน่ง\nกรุณาใช้เบราว์เซอร์อื่น หรือเปิดใน LINE');
+                return;
+            }
+            
+            // แสดง loading
+            const locationBtn = document.querySelector('.location-btn');
+            const originalText = locationBtn.innerHTML;
+            locationBtn.innerHTML = '<span>⏳</span> กำลังหาตำแหน่ง...';
+            locationBtn.disabled = true;
+            
+            // ขอ Location จากผู้ใช้
+            navigator.geolocation.getCurrentPosition(
+                // Success callback
+                function(position) {
+                    const userLat = position.coords.latitude;
+                    const userLng = position.coords.longitude;
+                    
+                    // คำนวณระยะทาง
+                    const distance = calculateDistance(
+                        SHOP_LOCATION.lat, SHOP_LOCATION.lng,
+                        userLat, userLng
+                    );
+                    const distanceRounded = Math.round(distance * 100) / 100;
+                    
+                    // หาค่าจัดส่ง
+                    const deliveryInfo = getDeliveryFee(distance);
+                    
+                    // เก็บพิกัดใน state
+                    state.userLocation = { lat: userLat, lng: userLng };
+                    state.distance = distanceRounded;
+                    
+                    if (deliveryInfo.available) {
+                        // อยู่ในพื้นที่บริการ
+                        state.selectedAddressId = 'new';
+                        state.selectedAddressName = 'ที่อยู่ใหม่ (' + distanceRounded + ' กม.)';
+                        state.deliveryFee = deliveryInfo.fee;
+                        
+                        document.getElementById('newAddressName').textContent = state.selectedAddressName;
+                        document.getElementById('newAddressFee').textContent = deliveryInfo.fee + '฿';
+                        document.getElementById('newAddressConfirm').classList.remove('hidden');
+                        
+                        // แสดงข้อความยืนยัน
+                        showLocationSuccess(distanceRounded, deliveryInfo);
+                    } else {
+                        // นอกพื้นที่บริการ
+                        showOutOfServiceArea(distanceRounded);
+                    }
+                    
+                    // คืนค่าปุ่ม
+                    locationBtn.innerHTML = originalText;
+                    locationBtn.disabled = false;
+                },
+                // Error callback
+                function(error) {
+                    locationBtn.innerHTML = originalText;
+                    locationBtn.disabled = false;
+                    
+                    let errorMessage = 'ไม่สามารถระบุตำแหน่งได้';
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMessage = 'กรุณาอนุญาตการเข้าถึงตำแหน่งค่ะ\n\nวิธีเปิด:\n1. กดไอคอน 🔒 หน้า URL\n2. เลือก "ตำแหน่ง" → "อนุญาต"\n3. รีเฟรชหน้าเว็บ';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMessage = 'ไม่สามารถระบุตำแหน่งได้\nกรุณาเปิด GPS แล้วลองใหม่ค่ะ';
+                            break;
+                        case error.TIMEOUT:
+                            errorMessage = 'หมดเวลาในการระบุตำแหน่ง\nกรุณาลองใหม่ค่ะ';
+                            break;
+                    }
+                    alert('ขออภัยค่ะ 🙏\n\n' + errorMessage);
+                },
+                // Options
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+            );
+        }
+        
+        // แสดงข้อความเมื่ออยู่ในพื้นที่บริการ
+        function showLocationSuccess(distance, deliveryInfo) {
+            const message = '✅ ตรวจสอบพิกัดเรียบร้อยค่ะ\n\n' +
+                           '📍 ระยะทาง: ' + distance + ' กม.\n' +
+                           '💰 ค่าบริการรับ-ส่ง: ' + deliveryInfo.fee + ' บาท\n' +
+                           '(' + deliveryInfo.feeText + ')';
+            alert(message);
+        }
+        
+        // แสดงข้อความเมื่อนอกพื้นที่บริการ
+        function showOutOfServiceArea(distance) {
+            // ซ่อน address confirm
+            document.getElementById('newAddressConfirm').classList.add('hidden');
+            
+            // แสดง popup นอกพื้นที่บริการ
+            const modal = document.createElement('div');
+            modal.id = 'outOfServiceModal';
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 16px;';
+            
+            modal.innerHTML = `
+                <div style="background: white; border-radius: 16px; padding: 24px; max-width: 400px; width: 100%; text-align: center;">
+                    <div style="font-size: 48px; margin-bottom: 16px;">🙏</div>
+                    <h3 style="color: #e74c3c; margin-bottom: 12px; font-size: 20px;">ขออภัยค่ะ</h3>
+                    
+                    <div style="background: #fee2e2; padding: 12px; border-radius: 8px; margin-bottom: 16px;">
+                        <p style="margin: 0 0 8px 0;">📍 ระยะทาง: <strong>${distance} กม.</strong></p>
+                        <p style="margin: 0; color: #dc2626;">❌ พิกัดของคุณลูกค้าอยู่นอกพื้นที่บริการรับ-ส่งผ้าค่ะ</p>
+                    </div>
+                    
+                    <div style="border-top: 1px solid #eee; padding-top: 16px; text-align: left;">
+                        <p style="margin: 0 0 12px 0;">📖 แนะนำให้คุณลูกค้ามาฝากผ้าที่ร้านกังหันดีวอชแทนนะคะ</p>
+                        <p style="margin: 0 0 12px 0; color: #666;">เรามีบริการ ซัก-อบ-พับ พร้อมแจ้งเตือนเมื่อผ้าเสร็จ คุณลูกค้าไม่ต้องนั่งรอทุกขั้นตอนค่ะ 😊</p>
+                        
+                        <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; font-size: 14px;">
+                            <p style="margin: 0 0 6px 0;">📍 <strong>ที่อยู่ร้าน:</strong> ${SHOP_LOCATION.address}</p>
+                            <p style="margin: 0 0 6px 0;">📞 <strong>โทร:</strong> ${SHOP_LOCATION.phone}</p>
+                            <p style="margin: 0 0 6px 0;">💬 <strong>Line:</strong> ${SHOP_LOCATION.line}</p>
+                            <p style="margin: 0;"><a href="${SHOP_LOCATION.mapUrl}" target="_blank" style="color: #3498db;">🗺️ ดูแผนที่</a></p>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 20px; display: flex; gap: 12px;">
+                        <button onclick="closeOutOfServiceModal()" style="flex: 1; padding: 12px; background: #e74c3c; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer;">ปิด</button>
+                        <button onclick="choosePickupInstead()" style="flex: 1; padding: 12px; background: #27ae60; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer;">มารับที่ร้าน</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+        
+        // ปิด modal นอกพื้นที่บริการ
+        function closeOutOfServiceModal() {
+            const modal = document.getElementById('outOfServiceModal');
+            if (modal) modal.remove();
+        }
+        
+        // เลือกมารับที่ร้านแทน
+        function choosePickupInstead() {
+            closeOutOfServiceModal();
+            // กลับไปหน้าเลือกการจัดส่ง และเลือก "มารับผ้าที่ร้าน"
+            selectDeliveryOption('no');
         }
 
         function selectDeliveryAddress(element, id, name, fee) {
@@ -2489,6 +2669,8 @@
             fullAddress: state.wantDelivery ? state.fullAddress : '-',
             locationNote: state.wantDelivery ? state.locationNote : '-',
             deliveryFee: state.wantDelivery ? state.deliveryFee : 0,
+            distance: state.wantDelivery ? state.distance : 0,
+            userLocation: state.wantDelivery && state.userLocation ? state.userLocation : null,
             slipVerified: state.paymentMethod === 'qr',
             paymentMethod: state.paymentMethod,
             // URLs ของรูป (ไม่ใช่ base64)
