@@ -1227,6 +1227,85 @@
     </div>
 
     <script>
+        // ==================== CONFIG ====================
+        const IMAGE_UPLOAD_URL = 'https://script.google.com/macros/s/AKfycbw1i2ifnVdUk78BTCxm2gwF-dlmFYhcNjsv_oW6cNTQhHp-hbaI7tVsgOfJ7eBfD0sp/exec';
+        
+        // ==================== IMAGE UPLOAD FUNCTIONS ====================
+        async function uploadImageToGoogleDrive(base64Data, fileName, orderId, imageType, basketIndex = null) {
+            try {
+                const response = await fetch(IMAGE_UPLOAD_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain;charset=utf-8',
+                    },
+                    body: JSON.stringify({
+                        action: 'uploadImage',
+                        base64: base64Data,
+                        fileName: fileName,
+                        orderId: orderId,
+                        imageType: imageType,
+                        basketIndex: basketIndex
+                    })
+                });
+                
+                const result = await response.json();
+                return result;
+            } catch (error) {
+                console.error('Upload error:', error);
+                return { success: false, message: error.toString() };
+            }
+        }
+        
+        async function uploadAllImages(orderId) {
+            const uploadResults = {
+                basketPhotos: [],
+                slipPhoto: null
+            };
+            
+            // อัปโหลดรูปตะกร้า
+            for (let i = 0; i < state.baskets.length; i++) {
+                const basket = state.baskets[i];
+                if (basket.photo && basket.photo.startsWith('data:image')) {
+                    const fileName = 'basket_' + (i + 1) + '_' + Date.now() + '.jpg';
+                    const result = await uploadImageToGoogleDrive(
+                        basket.photo,
+                        fileName,
+                        orderId,
+                        'basket',
+                        i + 1
+                    );
+                    
+                    if (result.success) {
+                        uploadResults.basketPhotos.push({
+                            basketIndex: i + 1,
+                            url: result.data.directUrl,
+                            fileId: result.data.fileId
+                        });
+                    }
+                }
+            }
+            
+            // อัปโหลดรูปสลิป
+            if (state.slipImage && state.slipImage.startsWith('data:image')) {
+                const slipFileName = 'slip_' + orderId + '.jpg';
+                const slipResult = await uploadImageToGoogleDrive(
+                    state.slipImage,
+                    slipFileName,
+                    orderId,
+                    'slip'
+                );
+                
+                if (slipResult.success) {
+                    uploadResults.slipPhoto = {
+                        url: slipResult.data.directUrl,
+                        fileId: slipResult.data.fileId
+                    };
+                }
+            }
+            
+            return uploadResults;
+        }
+        
         // ==================== SHOP INFO TOGGLE ====================
         function toggleShopInfo() {
             const shopInfo = document.getElementById('shopInfo');
@@ -1931,7 +2010,7 @@
             state.serviceType = type;
             document.querySelectorAll('#step2Single .service-option').forEach(btn => btn.classList.remove('active'));
             event.currentTarget.classList.add('active');
-            state.baskets = [{ queueNumber: '', detergent: 'shop', waterTemp: 'cold', washSize: '10kg', drySize: '16kg', dryTemp: 'high', extraTime: 0, photo: null }];
+            state.baskets = [{ queueNumber: '', detergent: 'shop', waterTemp: 'cold', washSize: '10kg', drySize: '16kg', dryTemp: 'high', extraTime: 0, photo: null, photoName: null }];
             setTimeout(() => {
                 // แสดง form รายละเอียดการซัก/อบ ก่อน
                 renderSingleBasketForm();
@@ -2044,9 +2123,24 @@
         }
 
         function uploadSinglePhoto() {
-            state.baskets[0].photo = 'uploaded_' + Date.now();
-            renderSingleBasketForm();
-            validateForm();
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.capture = 'environment'; // เปิดกล้องหลัง
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        state.baskets[0].photo = event.target.result; // เก็บ base64
+                        state.baskets[0].photoName = 'basket_1_' + Date.now() + '.jpg';
+                        renderSingleBasketForm();
+                        validateForm();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+            input.click();
         }
 
         function selectServiceMulti(type) {
@@ -2076,7 +2170,7 @@
         function initMultiBaskets() {
             state.baskets = [];
             for (let i = 0; i < state.basketCount; i++) {
-                state.baskets.push({ queueNumber: '', detergent: 'shop', waterTemp: 'cold', washSize: '10kg', drySize: '16kg', dryTemp: 'high', extraTime: 0, photo: null });
+                state.baskets.push({ queueNumber: '', detergent: 'shop', waterTemp: 'cold', washSize: '10kg', drySize: '16kg', dryTemp: 'high', extraTime: 0, photo: null, photoName: null });
             }
             state.drySize = '25kg'; state.dryTemp = 'high'; state.extraTime = 0;
         }
@@ -2188,7 +2282,26 @@
 
         function updateMultiDetergent(idx, det) { state.baskets[idx].detergent = det; renderMultiBasketForm(); calculateTotal(); }
         function updateMultiWaterTemp(idx, temp) { state.baskets[idx].waterTemp = temp; renderMultiBasketForm(); calculateTotal(); }
-        function uploadMultiPhoto(idx) { state.baskets[idx].photo = 'uploaded_' + Date.now(); renderMultiBasketForm(); validateForm(); }
+        function uploadMultiPhoto(idx) {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.capture = 'environment';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        state.baskets[idx].photo = event.target.result;
+                        state.baskets[idx].photoName = 'basket_' + (idx + 1) + '_' + Date.now() + '.jpg';
+                        renderMultiBasketForm();
+                        validateForm();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+            input.click();
+        }
 
         function updateMultiDrySize(size) {
             state.drySize = size;
@@ -2313,64 +2426,103 @@
             // เก็บไว้เพื่อไม่ให้เกิด error
         }
 
-        function submitOrder() {
+        async function submitOrder() {
     // สร้างหมายเลขออเดอร์ก่อน
     state.orderId = generateOrderId();
     state.orderTimestamp = new Date();
     
-    // คำนวณยอดรวม
-    const total = calculateGrandTotal();
+    // แสดง loading
+    const submitBtn = document.getElementById('btnSubmitOrder');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<span>⏳</span> กำลังอัปโหลดรูป...';
+    submitBtn.disabled = true;
     
-    // กำหนด customerType ตามการเลือกจัดส่ง
-    let customerType = 'pickup'; // ไม่ต้องการจัดส่ง = มารับผ้าที่ร้าน
-    if (state.wantDelivery && state.deliveryCustomerType) {
-        customerType = state.deliveryCustomerType; // 'new' หรือ 'existing'
-    }
-    
-    // เตรียมข้อมูลส่ง Webhook
-    const webhookData = {
-        cardType: 'orange',
-        orderId: state.orderId,
-        timestamp: state.orderTimestamp.toISOString(),
-        customerType: customerType,
-        basketCount: state.basketCount,
-        serviceType: state.serviceType,
-        baskets: state.baskets,
-        total: total,
-        phone: document.getElementById('phoneInput').value || '-',
-        lineId: document.getElementById('lineInput').value || '-',
-        address: state.wantDelivery ? state.selectedAddressName : '-',
-        fullAddress: state.wantDelivery ? state.fullAddress : '-',
-        locationNote: state.wantDelivery ? state.locationNote : '-',
-        deliveryFee: state.wantDelivery ? state.deliveryFee : 0,
-        slipVerified: state.paymentMethod === 'qr',
-        paymentMethod: state.paymentMethod,
-        // ข้อมูลอบรวม (สำหรับ ซักแยก อบรวม)
-        combinedDry: state.serviceType === 'wash_separate_dry_together' ? {
-            drySize: state.drySize,
-            dryTemp: state.dryTemp,
-            extraTime: state.extraTime
-        } : null
-    };
-    
-    console.log('Sending to webhook:', webhookData);
-    
-    // ส่งข้อมูลไป Webhook
-    fetch('https://schoolold.app.n8n.cloud/webhook/order-submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(webhookData)
-    })
-    .then(response => response.json())
-    .then(data => {
+    try {
+        // อัปโหลดรูปไป Google Drive ก่อน
+        console.log('Uploading images to Google Drive...');
+        const uploadResults = await uploadAllImages(state.orderId);
+        console.log('Upload results:', uploadResults);
+        
+        // อัปเดตปุ่ม
+        submitBtn.innerHTML = '<span>📤</span> กำลังส่งข้อมูล...';
+        
+        // คำนวณยอดรวม
+        const total = calculateGrandTotal();
+        
+        // กำหนด customerType ตามการเลือกจัดส่ง
+        let customerType = 'pickup';
+        if (state.wantDelivery && state.deliveryCustomerType) {
+            customerType = state.deliveryCustomerType;
+        }
+        
+        // สร้าง URLs string สำหรับรูปตะกร้า
+        const basketPhotoUrls = uploadResults.basketPhotos.map(p => p.url).join(', ');
+        
+        // เตรียม baskets โดยไม่รวม photo base64 (เพื่อลดขนาด payload)
+        const basketsForWebhook = state.baskets.map((basket, idx) => {
+            const photoResult = uploadResults.basketPhotos.find(p => p.basketIndex === idx + 1);
+            return {
+                queueNumber: basket.queueNumber,
+                detergent: basket.detergent,
+                waterTemp: basket.waterTemp,
+                washSize: basket.washSize,
+                drySize: basket.drySize,
+                dryTemp: basket.dryTemp,
+                extraTime: basket.extraTime,
+                photoUrl: photoResult ? photoResult.url : null
+            };
+        });
+        
+        // เตรียมข้อมูลส่ง Webhook (ส่ง URLs แทน base64)
+        const webhookData = {
+            cardType: 'orange',
+            orderId: state.orderId,
+            timestamp: state.orderTimestamp.toISOString(),
+            customerType: customerType,
+            basketCount: state.basketCount,
+            serviceType: state.serviceType,
+            baskets: basketsForWebhook,
+            total: total,
+            phone: document.getElementById('phoneInput').value || '-',
+            lineId: document.getElementById('lineInput').value || '-',
+            address: state.wantDelivery ? state.selectedAddressName : '-',
+            fullAddress: state.wantDelivery ? state.fullAddress : '-',
+            locationNote: state.wantDelivery ? state.locationNote : '-',
+            deliveryFee: state.wantDelivery ? state.deliveryFee : 0,
+            slipVerified: state.paymentMethod === 'qr',
+            paymentMethod: state.paymentMethod,
+            // URLs ของรูป (ไม่ใช่ base64)
+            basketPhotoUrls: basketPhotoUrls || '-',
+            slipPhotoUrl: uploadResults.slipPhoto ? uploadResults.slipPhoto.url : '-',
+            // ข้อมูลอบรวม (สำหรับ ซักแยก อบรวม)
+            combinedDry: state.serviceType === 'wash_separate_dry_together' ? {
+                drySize: state.drySize,
+                dryTemp: state.dryTemp,
+                extraTime: state.extraTime
+            } : null
+        };
+        
+        console.log('Sending to webhook:', webhookData);
+        
+        // ส่งข้อมูลไป Webhook
+        const response = await fetch('https://schoolold.app.n8n.cloud/webhook/order-submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(webhookData)
+        });
+        
+        const data = await response.json();
         console.log('Webhook response:', data);
-    })
-    .catch(error => {
-        console.error('Webhook error:', error);
-    });
-    
-    // ไปหน้า Confirmation/Receipt
-    goToConfirmation();
+        
+        // ไปหน้า Confirmation/Receipt
+        goToConfirmation();
+        
+    } catch (error) {
+        console.error('Submit error:', error);
+        alert('เกิดข้อผิดพลาด: ' + error.message + '\n\nกรุณาลองใหม่อีกครั้ง');
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    }
 }
         
         // สร้างหมายเลขออเดอร์
