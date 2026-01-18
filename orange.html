@@ -2340,7 +2340,13 @@
         locationNote: state.wantDelivery ? state.locationNote : '-',
         deliveryFee: state.wantDelivery ? state.deliveryFee : 0,
         slipVerified: state.paymentMethod === 'qr',
-        paymentMethod: state.paymentMethod
+        paymentMethod: state.paymentMethod,
+        // ข้อมูลอบรวม (สำหรับ ซักแยก อบรวม)
+        combinedDry: state.serviceType === 'wash_separate_dry_together' ? {
+            drySize: state.drySize,
+            dryTemp: state.dryTemp,
+            extraTime: state.extraTime
+        } : null
     };
     
     console.log('Sending to webhook:', webhookData);
