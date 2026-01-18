@@ -843,33 +843,39 @@
         </div>
 
         <!-- Delivery Address Section - Existing Customer -->
-        <div id="stepDeliveryAddressExisting" class="hidden">
+        <!-- Step: ค้นหาลูกค้าเก่าด้วยเบอร์โทร -->
+        <div id="stepSearchCustomer" class="hidden">
             <button class="back-btn" onclick="goBackToCustomerType()">← กลับ</button>
             <div class="card">
+                <div class="card-title"><span class="num">🔍</span> ค้นหาข้อมูลลูกค้า</div>
+                <div class="card-subtitle">กรุณากรอกเบอร์โทรที่เคยใช้บริการค่ะ</div>
+                
+                <div class="phone-search-section">
+                    <div class="phone-input-group">
+                        <input type="tel" id="searchPhoneInput" placeholder="เช่น 0894603746" maxlength="10" 
+                               oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                               style="width: 100%; padding: 16px; font-size: 18px; text-align: center; border: 2px solid #3498db; border-radius: 12px; font-family: inherit;">
+                    </div>
+                    <button id="btnSearchCustomer" onclick="searchCustomerByPhone()" 
+                            style="margin-top: 16px; width: 100%; padding: 14px; background: linear-gradient(135deg, #3498db, #2980b9); color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit;">
+                        <span>🔍</span> ค้นหา
+                    </button>
+                </div>
+                
+                <!-- ผลลัพธ์การค้นหา -->
+                <div id="searchResultSection" class="hidden" style="margin-top: 20px;">
+                    <div id="searchResultContent"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="stepDeliveryAddressExisting" class="hidden">
+            <button class="back-btn" onclick="goBackToSearchCustomer()">← กลับ</button>
+            <div class="card">
                 <div class="card-title"><span class="num">📍</span> เลือกที่อยู่จัดส่ง</div>
-                <div class="card-subtitle">👋 ยินดีต้อนรับกลับมาค่ะ! เลือกที่อยู่ที่ต้องการ</div>
-                <div class="address-list">
-                    <div class="address-item" onclick="selectDeliveryAddress(this, 1, 'คอนโดมี ตึก D ชั้น 5', 20)">
-                        <div class="addr-icon">🏢</div>
-                        <div class="addr-info">
-                            <div class="addr-name"><span class="star">⭐</span> คอนโดมี ตึก D ชั้น 5</div>
-                            <div class="addr-zone">โซน A (ใกล้ร้าน)</div>
-                        </div>
-                        <div class="addr-fee">20฿</div>
-                        <div class="addr-check">✓</div>
-                    </div>
-                    <div class="address-item" onclick="selectDeliveryAddress(this, 2, 'บ้านพักสิริอเวนิว หมู่ 1', 40)">
-                        <div class="addr-icon">🏠</div>
-                        <div class="addr-info">
-                            <div class="addr-name">บ้านพักสิริอเวนิว หมู่ 1</div>
-                            <div class="addr-zone">โซน B</div>
-                        </div>
-                        <div class="addr-fee">40฿</div>
-                        <div class="addr-check">✓</div>
-                    </div>
-                    <div class="add-address-btn" onclick="showNewAddressFromExisting()">
-                        <span>➕</span> เพิ่มที่อยู่ใหม่
-                    </div>
+                <div class="card-subtitle" id="welcomeBackMessage">👋 ยินดีต้อนรับกลับมาค่ะ! เลือกที่อยู่ที่ต้องการ</div>
+                <div class="address-list" id="existingAddressList">
+                    <!-- จะถูกสร้างโดย JavaScript -->
                 </div>
                 <div id="existingAddressConfirm" class="hidden">
                     <div class="delivery-info-card">
@@ -1469,6 +1475,9 @@
             fullAddress: '',
             userLocation: null, // { lat, lng }
             distance: 0,
+            // Existing customer state
+            existingCustomer: null,
+            existingAddresses: [],
             // Payment state
             slipUploaded: false
         };
@@ -1519,6 +1528,7 @@
             document.getElementById('stepDeliveryCustomerType').classList.add('hidden');
             document.getElementById('stepDeliveryAddressNew').classList.add('hidden');
             document.getElementById('stepDeliveryAddressExisting').classList.add('hidden');
+            document.getElementById('stepSearchCustomer').classList.add('hidden');
         }
 
         function resetDeliveryState() {
@@ -1528,9 +1538,13 @@
             state.selectedAddressName = '';
             state.deliveryFee = 0;
             state.locationNote = '';
+            state.existingCustomer = null;
+            state.existingAddresses = [];
             document.querySelectorAll('.delivery-choice-btn, .customer-type-btn, .address-item').forEach(btn => btn.classList.remove('active'));
             document.getElementById('newAddressConfirm').classList.add('hidden');
             document.getElementById('existingAddressConfirm').classList.add('hidden');
+            document.getElementById('searchPhoneInput').value = '';
+            document.getElementById('searchResultSection').classList.add('hidden');
         }
 
         function showDeliveryQuestion() {
@@ -1599,20 +1613,168 @@
                 if (type === 'new') {
                     document.getElementById('stepDeliveryAddressNew').classList.remove('hidden');
                 } else {
-                    document.getElementById('stepDeliveryAddressExisting').classList.remove('hidden');
+                    // ลูกค้าเก่า - ไปหน้าค้นหาเบอร์โทรก่อน
+                    document.getElementById('stepSearchCustomer').classList.remove('hidden');
                 }
             }, 200);
+        }
+
+        function goBackToSearchCustomer() {
+            document.getElementById('stepDeliveryAddressExisting').classList.add('hidden');
+            document.getElementById('stepSearchCustomer').classList.remove('hidden');
         }
 
         function goBackToCustomerType() {
             document.getElementById('stepDeliveryAddressNew').classList.add('hidden');
             document.getElementById('stepDeliveryAddressExisting').classList.add('hidden');
+            document.getElementById('stepSearchCustomer').classList.add('hidden');
             document.getElementById('stepDeliveryCustomerType').classList.remove('hidden');
             document.querySelectorAll('.customer-type-btn').forEach(btn => btn.classList.remove('active'));
             state.deliveryCustomerType = null;
             state.selectedAddressId = null;
             state.selectedAddressName = '';
             state.deliveryFee = 0;
+            state.existingCustomer = null;
+            // Reset search form
+            document.getElementById('searchPhoneInput').value = '';
+            document.getElementById('searchResultSection').classList.add('hidden');
+        }
+        
+        // ===== ระบบลูกค้าเก่า =====
+        async function searchCustomerByPhone() {
+            const phone = document.getElementById('searchPhoneInput').value.trim();
+            
+            if (!phone || phone.length < 9) {
+                alert('กรุณากรอกเบอร์โทรให้ครบถ้วนค่ะ');
+                return;
+            }
+            
+            // แสดง loading
+            const btn = document.getElementById('btnSearchCustomer');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span>⏳</span> กำลังค้นหา...';
+            btn.disabled = true;
+            
+            try {
+                const response = await fetch(IMAGE_UPLOAD_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({
+                        action: 'searchCustomer',
+                        phone: phone
+                    })
+                });
+                
+                const result = await response.json();
+                console.log('Search result:', result);
+                
+                if (result.success && result.data.found) {
+                    // พบลูกค้า
+                    state.existingCustomer = result.data.customer;
+                    state.existingAddresses = result.data.addresses;
+                    showCustomerFound(result.data);
+                } else if (result.success && !result.data.found) {
+                    // ไม่พบลูกค้า
+                    showCustomerNotFound(phone);
+                } else {
+                    alert('เกิดข้อผิดพลาด: ' + result.message);
+                }
+                
+            } catch (error) {
+                console.error('Search error:', error);
+                alert('ไม่สามารถค้นหาได้ กรุณาลองใหม่อีกครั้งค่ะ');
+            }
+            
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+        
+        function showCustomerFound(data) {
+            const customer = data.customer;
+            const addresses = data.addresses;
+            
+            // แสดงข้อความต้อนรับ
+            let welcomeMsg = '👋 ยินดีต้อนรับกลับมาค่ะ';
+            if (customer.name) {
+                welcomeMsg = '👋 ยินดีต้อนรับกลับมาค่ะ คุณ' + customer.name;
+            }
+            if (customer.totalOrders > 0) {
+                welcomeMsg += ' (ใช้บริการแล้ว ' + customer.totalOrders + ' ครั้ง)';
+            }
+            document.getElementById('welcomeBackMessage').textContent = welcomeMsg;
+            
+            // สร้าง address list
+            let addressHtml = '';
+            addresses.forEach((addr, idx) => {
+                const isFirst = idx === 0;
+                const icon = isFirst ? '🏢' : '🏠';
+                const star = isFirst ? '<span class="star">⭐</span> ' : '';
+                const zone = addr.fee <= 40 ? 'โซน A (ใกล้ร้าน)' : 'โซน B';
+                
+                addressHtml += `
+                    <div class="address-item" onclick="selectDeliveryAddress(this, ${addr.id}, '${addr.name}', ${addr.fee})">
+                        <div class="addr-icon">${icon}</div>
+                        <div class="addr-info">
+                            <div class="addr-name">${star}${addr.name}</div>
+                            <div class="addr-zone">${zone}</div>
+                        </div>
+                        <div class="addr-fee">${addr.fee}฿</div>
+                        <div class="addr-check">✓</div>
+                    </div>
+                `;
+            });
+            
+            // ปุ่มเพิ่มที่อยู่ใหม่
+            addressHtml += `
+                <div class="add-address-btn" onclick="showNewAddressFromExisting()">
+                    <span>➕</span> เพิ่มที่อยู่ใหม่
+                </div>
+            `;
+            
+            document.getElementById('existingAddressList').innerHTML = addressHtml;
+            
+            // ไปหน้าเลือกที่อยู่
+            document.getElementById('stepSearchCustomer').classList.add('hidden');
+            document.getElementById('stepDeliveryAddressExisting').classList.remove('hidden');
+        }
+        
+        function showCustomerNotFound(phone) {
+            const resultSection = document.getElementById('searchResultSection');
+            const resultContent = document.getElementById('searchResultContent');
+            
+            resultContent.innerHTML = `
+                <div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 12px; padding: 16px; text-align: center;">
+                    <div style="font-size: 32px; margin-bottom: 12px;">🔍</div>
+                    <div style="color: #856404; font-weight: 600; margin-bottom: 8px;">ไม่พบข้อมูลลูกค้า</div>
+                    <div style="color: #856404; font-size: 14px; margin-bottom: 16px;">
+                        เบอร์โทร <strong>${phone}</strong> ยังไม่เคยใช้บริการค่ะ
+                    </div>
+                    <div style="display: flex; gap: 12px; justify-content: center;">
+                        <button onclick="switchToNewCustomer()" style="padding: 10px 20px; background: #27ae60; color: white; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; font-family: inherit;">
+                            สมัครเป็นลูกค้าใหม่
+                        </button>
+                        <button onclick="document.getElementById('searchPhoneInput').value=''; document.getElementById('searchResultSection').classList.add('hidden');" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; font-family: inherit;">
+                            ลองเบอร์อื่น
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            resultSection.classList.remove('hidden');
+        }
+        
+        function switchToNewCustomer() {
+            // เก็บเบอร์โทรที่กรอกไว้
+            const phone = document.getElementById('searchPhoneInput').value.trim();
+            
+            // ซ่อนหน้าค้นหา
+            document.getElementById('stepSearchCustomer').classList.add('hidden');
+            
+            // แสดงหน้าลูกค้าใหม่
+            document.getElementById('stepDeliveryAddressNew').classList.remove('hidden');
+            
+            // เปลี่ยน customerType เป็น new
+            state.deliveryCustomerType = 'new';
         }
 
         function requestDeliveryLocation() {
