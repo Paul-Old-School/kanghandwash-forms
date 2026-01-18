@@ -822,6 +822,11 @@
                         </div>
                     </div>
                     <div class="location-note-input">
+                        <label>🏠 ที่อยู่แบบเต็ม</label>
+                        <textarea id="fullAddressInputNew" placeholder="เช่น 123/45 หมู่บ้านสิริ ซอย 5 ต.บางบ่อ อ.บางบ่อ จ.สมุทรปราการ 10560" oninput="updateFullAddress(this.value)" rows="2" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; font-family: inherit; resize: none;"></textarea>
+                        <div class="hint">กรอกที่อยู่เต็มเพื่อความสะดวกในการจัดส่ง</div>
+                    </div>
+                    <div class="location-note-input" style="margin-top: 12px;">
                         <label>📝 ระบุตำแหน่งวางตะกร้า</label>
                         <input type="text" id="locationNoteInputNew" placeholder="เช่น หน้าประตูห้อง, ล็อบบี้ชั้น 1" oninput="updateDeliveryLocationNote(this.value)">
                         <div class="hint">ระบุจุดที่คนขับสามารถมาส่งผ้าได้ง่าย</div>
@@ -878,6 +883,11 @@
                         </div>
                     </div>
                     <div class="location-note-input">
+                        <label>🏠 ที่อยู่แบบเต็ม</label>
+                        <textarea id="fullAddressInputExisting" placeholder="เช่น 123/45 หมู่บ้านสิริ ซอย 5 ต.บางบ่อ อ.บางบ่อ จ.สมุทรปราการ 10560" oninput="updateFullAddress(this.value)" rows="2" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; font-family: inherit; resize: none;"></textarea>
+                        <div class="hint">กรอกที่อยู่เต็มเพื่อความสะดวกในการจัดส่ง</div>
+                    </div>
+                    <div class="location-note-input" style="margin-top: 12px;">
                         <label>📝 ระบุตำแหน่งวางตะกร้า</label>
                         <input type="text" id="locationNoteInputExisting" placeholder="เช่น หน้าประตูห้อง, ล็อบบี้ชั้น 1" oninput="updateDeliveryLocationNote(this.value)">
                         <div class="hint">ระบุจุดที่คนขับสามารถมาส่งผ้าได้ง่าย</div>
@@ -1335,6 +1345,7 @@
             selectedAddressName: '',
             deliveryFee: 0,
             locationNote: '',
+            fullAddress: '',
             // Payment state
             slipUploaded: false
         };
@@ -1510,6 +1521,10 @@
 
         function updateDeliveryLocationNote(value) {
             state.locationNote = value;
+        }
+
+        function updateFullAddress(value) {
+            state.fullAddress = value;
         }
 
         function confirmDeliveryAddress() {
@@ -2302,7 +2317,7 @@
     // คำนวณยอดรวม
     const total = calculateGrandTotal();
     
-   // กำหนด customerType ตามการเลือกจัดส่ง
+    // กำหนด customerType ตามการเลือกจัดส่ง
     let customerType = 'pickup'; // ไม่ต้องการจัดส่ง = มารับผ้าที่ร้าน
     if (state.wantDelivery && state.deliveryCustomerType) {
         customerType = state.deliveryCustomerType; // 'new' หรือ 'existing'
@@ -2321,6 +2336,9 @@
         phone: document.getElementById('phoneInput').value || '-',
         lineId: document.getElementById('lineInput').value || '-',
         address: state.wantDelivery ? state.selectedAddressName : '-',
+        fullAddress: state.wantDelivery ? state.fullAddress : '-',
+        locationNote: state.wantDelivery ? state.locationNote : '-',
+        deliveryFee: state.wantDelivery ? state.deliveryFee : 0,
         slipVerified: state.paymentMethod === 'qr',
         paymentMethod: state.paymentMethod
     };
