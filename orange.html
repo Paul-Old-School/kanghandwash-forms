@@ -3038,7 +3038,10 @@
     // สร้างหมายเลขออเดอร์ก่อน
     state.orderId = generateOrderId();
     state.orderTimestamp = new Date();
-    
+    state.orderId = generateOrderId();
+    state.orderTimestamp = new Date();
+    state.phone = document.getElementById('phoneInput').value || '-';
+    state.lineId = document.getElementById('lineInput').value || '-';
     // แสดง loading
     const submitBtn = document.getElementById('btnSubmitOrder');
     const originalText = submitBtn.innerHTML;
@@ -3271,8 +3274,8 @@
             document.getElementById('receiptServiceDetails').innerHTML = detailsHtml;
             
             // ข้อมูลติดต่อ
-            document.getElementById('receiptPhone').textContent = document.getElementById('phoneInput').value || '-';
-            document.getElementById('receiptLineId').textContent = document.getElementById('lineInput').value || '-';
+            document.getElementById('receiptPhone').textContent = state.phone || '-';
+            document.getElementById('receiptLineId').textContent = state.lineId || '-';
             document.getElementById('receiptPayment').textContent = state.paymentMethod === 'qr' ? '✅ สแกน QR แล้ว' : '💵 เงินสด (รอชำระ)';
             
             // ยอดรวม
