@@ -1145,7 +1145,7 @@
                        <span class="value" id="receiptAddress">-</span>
                 </div>
                 <div class="receipt-row" id="receiptFullAddressRow" style="display: none;">
-                    <span class="label">ที่อยู่เต็ม</span>
+                    <span class="label">ที่อยู่เพิ่มเติม</span>
                     <span class="value" id="receiptFullAddress" style="font-size: 12px;">-</span>
                 </div>
                 <div class="receipt-row">
@@ -1662,23 +1662,15 @@
                 return { success: true, skipped: true };
             }
             
-            // กำหนด addressSlot และ incrementOnly
-            // - ลูกค้าใหม่ → slot 1, incrementOnly = false
+            // กำหนด incrementOnly
+            // - ลูกค้าใหม่ → incrementOnly = false
             // - ลูกค้าเก่า เลือกที่อยู่เดิม → incrementOnly = true
-            // - ลูกค้าเก่า เพิ่มที่อยู่ใหม่ → slot 2, incrementOnly = false
-            let addressSlot = 1;
+            // - ลูกค้าเก่า เพิ่มที่อยู่ใหม่ → incrementOnly = false
             let incrementOnly = false;
             
-            if (state.deliveryCustomerType === 'existing') {
-                // ลูกค้าเก่า
-                if (state.selectedAddressId === 'new') {
-                    // เพิ่มที่อยู่ใหม่ → ใช้ slot 2
-                    addressSlot = 2;
-                    incrementOnly = false;
-                } else {
-                    // เลือกที่อยู่เดิม → แค่ increment count
-                    incrementOnly = true;
-                }
+            if (state.deliveryCustomerType === 'existing' && state.selectedAddressId !== 'new') {
+                // ลูกค้าเก่า เลือกที่อยู่เดิม → แค่ increment count
+                incrementOnly = true;
             }
             
             // เตรียมข้อมูล
@@ -1690,12 +1682,16 @@
                 incrementOnly: incrementOnly
             };
             
+            // ถ้าเลือกที่อยู่เดิม → ส่ง addressId ไปด้วย
+            if (incrementOnly && state.selectedAddressId) {
+                customerData.addressId = state.selectedAddressId;
+            }
+            
             // ถ้าไม่ใช่ incrementOnly ต้องส่ง address ด้วย
             if (!incrementOnly) {
                 customerData.address = state.selectedAddressName || '';
                 customerData.fee = state.deliveryFee || 0;
                 customerData.location = state.userLocation ? `${state.userLocation.lat},${state.userLocation.lng}` : '';
-                customerData.addressSlot = addressSlot;
             }
             
             // ถ้ามีข้อมูลลูกค้าเก่า ใช้ชื่อจากที่บันทึกไว้
@@ -1796,6 +1792,7 @@
             
             // เก็บข้อมูลลูกค้าไว้ใน state
             state.existingCustomer = customer;
+            state.existingAddresses = addresses;
             
             // แสดงข้อความต้อนรับ
             let welcomeMsg = '👋 ยินดีต้อนรับกลับมาค่ะ';
@@ -1809,24 +1806,41 @@
             
             // สร้าง address list
             let addressHtml = '';
-            addresses.forEach((addr, idx) => {
-                const isFirst = idx === 0;
-                const icon = isFirst ? '🏢' : '🏠';
-                const star = isFirst ? '<span class="star">⭐</span> ' : '';
-                const zone = addr.fee <= 40 ? 'โซน A (ใกล้ร้าน)' : 'โซน B';
-                
+            
+            if (addresses.length === 0) {
+                // ไม่มีที่อยู่ที่ผ่าน threshold
                 addressHtml += `
-                    <div class="address-item" onclick="selectDeliveryAddress(this, ${addr.id}, '${addr.name}', ${addr.fee})">
-                        <div class="addr-icon">${icon}</div>
-                        <div class="addr-info">
-                            <div class="addr-name">${star}${addr.name}</div>
-                            <div class="addr-zone">${zone}</div>
+                    <div style="background: #fff9e6; border: 1px solid #f39c12; border-radius: 12px; padding: 16px; margin-bottom: 12px; text-align: center;">
+                        <div style="font-size: 14px; color: #856404;">
+                            📍 ยังไม่มีที่อยู่ที่บันทึกไว้<br>
+                            <span style="font-size: 12px; opacity: 0.8;">กรุณาเพิ่มที่อยู่ใหม่ด้านล่าง</span>
                         </div>
-                        <div class="addr-fee">${addr.fee}฿</div>
-                        <div class="addr-check">✓</div>
                     </div>
                 `;
-            });
+            } else {
+                addresses.forEach((addr, idx) => {
+                    const isFirst = idx === 0;
+                    const icon = isFirst ? '🏢' : '🏠';
+                    const star = isFirst ? '<span class="star">⭐</span> ' : '';
+                    const zone = addr.fee <= 40 ? 'โซน A (ใกล้ร้าน)' : 'โซน B';
+                    // Escape single quotes ในชื่อที่อยู่
+                    const escapedName = addr.name.replace(/'/g, "\\'");
+                    // แสดงจำนวนครั้งที่ใช้งาน
+                    const usageText = addr.usageCount ? ` (ใช้ ${addr.usageCount} ครั้ง)` : '';
+                    
+                    addressHtml += `
+                        <div class="address-item" onclick="selectDeliveryAddress(this, ${addr.id}, '${escapedName}', ${addr.fee})">
+                            <div class="addr-icon">${icon}</div>
+                            <div class="addr-info">
+                                <div class="addr-name">${star}${addr.name}</div>
+                                <div class="addr-zone">${zone}${usageText}</div>
+                            </div>
+                            <div class="addr-fee">${addr.fee}฿</div>
+                            <div class="addr-check">✓</div>
+                        </div>
+                    `;
+                });
+            }
             
             // ปุ่มเพิ่มที่อยู่ใหม่
             addressHtml += `
@@ -2565,18 +2579,21 @@
             
             // รายละเอียดการซัก
             let washHtml = '';
-            state.baskets.forEach((b, idx) => {
-                const tempL = b.waterTemp === 'cold' ? 'เย็น' : b.waterTemp === 'warm' ? 'อุ่น' : 'ร้อน';
-                const detL = b.detergent === 'own' ? 'น้ำยาลูกค้า' : 'น้ำยาของร้าน (+10฿)';
-                const price = getWashPrice(b.detergent, b.washSize, b.waterTemp);
-                
-                washHtml += '<div style="background: rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; margin-bottom: 8px;">';
-                washHtml += '<div style="font-weight: 600; margin-bottom: 6px;">ตะกร้าที่ ' + (idx + 1) + '</div>';
-                washHtml += '<div class="summary-item"><span class="label">🧴 ' + detL + '</span><span class="value"></span></div>';
-                washHtml += '<div class="summary-item"><span class="label">🌡️ น้ำ' + tempL + '</span><span class="value"></span></div>';
-                washHtml += '<div class="summary-item"><span class="label">📏 ' + b.washSize + '</span><span class="value">' + price + ' ฿</span></div>';
-                washHtml += '</div>';
-            });
+            // แสดงรายละเอียดซัก เฉพาะเมื่อไม่ใช่ "อบอย่างเดียว"
+            if (state.serviceType !== 'dry_only') {
+                state.baskets.forEach((b, idx) => {
+                    const tempL = b.waterTemp === 'cold' ? 'เย็น' : b.waterTemp === 'warm' ? 'อุ่น' : 'ร้อน';
+                    const detL = b.detergent === 'own' ? 'น้ำยาลูกค้า' : 'น้ำยาของร้าน (+10฿)';
+                    const price = getWashPrice(b.detergent, b.washSize, b.waterTemp);
+                    
+                    washHtml += '<div style="background: rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; margin-bottom: 8px;">';
+                    washHtml += '<div style="font-weight: 600; margin-bottom: 6px;">ตะกร้าที่ ' + (idx + 1) + '</div>';
+                    washHtml += '<div class="summary-item"><span class="label">🧴 ' + detL + '</span><span class="value"></span></div>';
+                    washHtml += '<div class="summary-item"><span class="label">🌡️ น้ำ' + tempL + '</span><span class="value"></span></div>';
+                    washHtml += '<div class="summary-item"><span class="label">📏 ' + b.washSize + '</span><span class="value">' + price + ' ฿</span></div>';
+                    washHtml += '</div>';
+                });
+            }
             
             // ถ้ามีอบ
             if (state.serviceType !== 'wash_only') {
@@ -3224,23 +3241,26 @@
             
             // รายละเอียดแต่ละตะกร้า
             let detailsHtml = '';
-            state.baskets.forEach((b, idx) => {
-                const tempL = b.waterTemp === 'cold' ? 'น้ำเย็น' : b.waterTemp === 'warm' ? 'น้ำอุ่น' : 'น้ำร้อน';
-                const detL = b.detergent === 'own' ? 'น้ำยาลูกค้า' : 'น้ำยาร้าน';
-                const washPrice = getWashPrice(b.detergent, b.washSize, b.waterTemp);
-                
-                detailsHtml += '<div class="receipt-item-card">';
-                detailsHtml += '<div class="receipt-item-header">';
-                detailsHtml += '<span class="receipt-item-title">🧺 ตะกร้าที่ ' + (idx + 1) + '</span>';
-                detailsHtml += '<span class="receipt-item-price">' + washPrice + ' ฿</span>';
-                detailsHtml += '</div>';
-                detailsHtml += '<div class="receipt-item-details">';
-                detailsHtml += '<span>📏 ' + b.washSize + '</span>';
-                detailsHtml += '<span>🌡️ ' + tempL + '</span>';
-                detailsHtml += '<span>🧴 ' + detL + '</span>';
-                detailsHtml += '</div>';
-                detailsHtml += '</div>';
-            });
+            // แสดงรายละเอียดซัก เฉพาะเมื่อไม่ใช่ "อบอย่างเดียว"
+            if (state.serviceType !== 'dry_only') {
+                state.baskets.forEach((b, idx) => {
+                    const tempL = b.waterTemp === 'cold' ? 'น้ำเย็น' : b.waterTemp === 'warm' ? 'น้ำอุ่น' : 'น้ำร้อน';
+                    const detL = b.detergent === 'own' ? 'น้ำยาลูกค้า' : 'น้ำยาร้าน';
+                    const washPrice = getWashPrice(b.detergent, b.washSize, b.waterTemp);
+                    
+                    detailsHtml += '<div class="receipt-item-card">';
+                    detailsHtml += '<div class="receipt-item-header">';
+                    detailsHtml += '<span class="receipt-item-title">🧺 ตะกร้าที่ ' + (idx + 1) + '</span>';
+                    detailsHtml += '<span class="receipt-item-price">' + washPrice + ' ฿</span>';
+                    detailsHtml += '</div>';
+                    detailsHtml += '<div class="receipt-item-details">';
+                    detailsHtml += '<span>📏 ' + b.washSize + '</span>';
+                    detailsHtml += '<span>🌡️ ' + tempL + '</span>';
+                    detailsHtml += '<span>🧴 ' + detL + '</span>';
+                    detailsHtml += '</div>';
+                    detailsHtml += '</div>';
+                });
+            }
             
             // ถ้ามีอบ
             if (state.serviceType !== 'wash_only') {
