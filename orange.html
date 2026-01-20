@@ -1644,6 +1644,81 @@
             document.getElementById('searchResultSection').classList.add('hidden');
         }
         
+        // ===== บันทึกข้อมูลลูกค้าลง Database =====
+        async function saveCustomerToDatabase() {
+            // ถ้าไม่ต้องการจัดส่ง ไม่ต้องบันทึก
+            if (!state.wantDelivery) {
+                console.log('No delivery, skip saving customer');
+                return { success: true, skipped: true };
+            }
+            
+            const phone = document.getElementById('phoneInput').value.trim();
+            if (!phone) {
+                console.log('No phone number, skip saving customer');
+                return { success: true, skipped: true };
+            }
+            
+            // กำหนด addressSlot และ incrementOnly
+            // - ลูกค้าใหม่ → slot 1, incrementOnly = false
+            // - ลูกค้าเก่า เลือกที่อยู่เดิม → incrementOnly = true
+            // - ลูกค้าเก่า เพิ่มที่อยู่ใหม่ → slot 2, incrementOnly = false
+            let addressSlot = 1;
+            let incrementOnly = false;
+            
+            if (state.deliveryCustomerType === 'existing') {
+                // ลูกค้าเก่า
+                if (state.selectedAddressId === 'new') {
+                    // เพิ่มที่อยู่ใหม่ → ใช้ slot 2
+                    addressSlot = 2;
+                    incrementOnly = false;
+                } else {
+                    // เลือกที่อยู่เดิม → แค่ increment count
+                    incrementOnly = true;
+                }
+            }
+            
+            // เตรียมข้อมูล
+            const customerData = {
+                action: 'saveCustomerAddress',
+                phone: phone,
+                name: '', // จะได้จาก existingCustomer ถ้ามี
+                lineId: document.getElementById('lineInput').value.trim() || '',
+                incrementOnly: incrementOnly
+            };
+            
+            // ถ้าไม่ใช่ incrementOnly ต้องส่ง address ด้วย
+            if (!incrementOnly) {
+                customerData.address = state.selectedAddressName || '';
+                customerData.fee = state.deliveryFee || 0;
+                customerData.location = state.userLocation ? `${state.userLocation.lat},${state.userLocation.lng}` : '';
+                customerData.addressSlot = addressSlot;
+            }
+            
+            // ถ้ามีข้อมูลลูกค้าเก่า ใช้ชื่อจากที่บันทึกไว้
+            if (state.existingCustomer && state.existingCustomer.name) {
+                customerData.name = state.existingCustomer.name;
+            }
+            
+            console.log('Saving customer to database:', customerData);
+            
+            try {
+                const response = await fetch(IMAGE_UPLOAD_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify(customerData)
+                });
+                
+                const result = await response.json();
+                console.log('Save customer result:', result);
+                return result;
+                
+            } catch (error) {
+                console.error('Save customer error:', error);
+                // ไม่ throw error เพราะไม่อยากให้ order fail
+                return { success: false, error: error.message };
+            }
+        }
+        
         // ===== ระบบลูกค้าเก่า =====
         async function searchCustomerByPhone() {
             const phone = document.getElementById('searchPhoneInput').value.trim();
@@ -1696,6 +1771,9 @@
         function showCustomerFound(data) {
             const customer = data.customer;
             const addresses = data.addresses;
+            
+            // เก็บข้อมูลลูกค้าไว้ใน state
+            state.existingCustomer = customer;
             
             // แสดงข้อความต้อนรับ
             let welcomeMsg = '👋 ยินดีต้อนรับกลับมาค่ะ';
@@ -3027,6 +3105,11 @@
         
         const data = await response.json();
         console.log('Webhook response:', data);
+        
+        // บันทึกข้อมูลลูกค้าลง Database (ถ้ามีการจัดส่ง)
+        submitBtn.innerHTML = '<span>💾</span> กำลังบันทึกข้อมูล...';
+        const saveResult = await saveCustomerToDatabase();
+        console.log('Save customer result:', saveResult);
         
         // ไปหน้า Confirmation/Receipt
         goToConfirmation();
