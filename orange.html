@@ -1708,9 +1708,27 @@
                     body: JSON.stringify(customerData)
                 });
                 
-                const result = await response.json();
-                console.log('Save customer result:', result);
-                return result;
+                // ตรวจสอบว่า response ok หรือไม่
+                if (!response.ok) {
+                    console.warn('Save customer API returned error:', response.status);
+                    return { success: false, error: 'API error: ' + response.status };
+                }
+                
+                // พยายาม parse JSON แต่ถ้าไม่ได้ก็ไม่เป็นไร
+                const text = await response.text();
+                if (!text || text.trim() === '') {
+                    console.warn('Save customer API returned empty response');
+                    return { success: false, error: 'Empty response' };
+                }
+                
+                try {
+                    const result = JSON.parse(text);
+                    console.log('Save customer result:', result);
+                    return result;
+                } catch (parseError) {
+                    console.warn('Save customer API returned non-JSON:', text);
+                    return { success: false, error: 'Invalid JSON response' };
+                }
                 
             } catch (error) {
                 console.error('Save customer error:', error);
@@ -3103,7 +3121,16 @@
             body: JSON.stringify(webhookData)
         });
         
-        const data = await response.json();
+        // พยายาม parse JSON แต่ถ้าไม่ได้ก็ไม่เป็นไร (webhook อาจ return empty)
+        let data = {};
+        try {
+            const text = await response.text();
+            if (text && text.trim() !== '') {
+                data = JSON.parse(text);
+            }
+        } catch (parseError) {
+            console.warn('Webhook returned non-JSON response');
+        }
         console.log('Webhook response:', data);
         
         // บันทึกข้อมูลลูกค้าลง Database (ถ้ามีการจัดส่ง)
