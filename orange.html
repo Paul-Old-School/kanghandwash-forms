@@ -826,7 +826,7 @@
                         </div>
                     </div>
                     <div class="location-note-input">
-                        <label>🏠 ที่อยู่แบบเต็ม (ถ้ามี)</label>
+                        <label>🏠 ที่อยู่เพิ่มเติม (ถ้ามี)</label>
                         <textarea id="fullAddressInputNew" placeholder="เช่น 123/45 หมู่บ้านสิริ ซอย 5 ต.บางบ่อ อ.บางบ่อ จ.สมุทรปราการ 10560" oninput="updateFullAddress(this.value)" rows="2" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; font-family: inherit; resize: none;"></textarea>
                         <div class="hint">กรอกที่อยู่เต็มเพื่อความสะดวกในการจัดส่ง</div>
                     </div>
@@ -893,7 +893,7 @@
                         </div>
                     </div>
                     <div class="location-note-input">
-                        <label>🏠 ที่อยู่แบบเต็ม (ถ้ามี)</label>
+                        <label>🏠 ที่อยู่เพิ่มเติม (ถ้ามี)</label>
                         <textarea id="fullAddressInputExisting" placeholder="เช่น 123/45 หมู่บ้านสิริ ซอย 5 ต.บางบ่อ อ.บางบ่อ จ.สมุทรปราการ 10560" oninput="updateFullAddress(this.value)" rows="2" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; font-family: inherit; resize: none;"></textarea>
                         <div class="hint">กรอกที่อยู่เต็มเพื่อความสะดวกในการจัดส่ง</div>
                     </div>
@@ -926,7 +926,7 @@
                         <div class="summary-section-title" style="color: #FFD700;">🚗 ข้อมูลจัดส่ง</div>
                         <div class="summary-items">
                             <div class="summary-item"><span class="label">ที่อยู่</span><span class="value" id="summaryAddress">-</span></div>
-                            <div class="summary-item"><span class="label">ที่อยู่แบบเต็ม</span><span class="value" id="summaryFullAddress">-</span></div>
+                            <div class="summary-item"><span class="label">ที่อยู่เพิ่มเติม</span><span class="value" id="summaryFullAddress">-</span></div>
                             <div class="summary-item"><span class="label">ตำแหน่งวางตะกร้า</span><span class="value" id="summaryLocationNote">-</span></div>
                             <div class="summary-item"><span class="label">ค่าบริการรับ-ส่ง</span><span class="value" id="summaryDeliveryFee">-</span></div>
                         </div>
@@ -1969,6 +1969,7 @@
                 confirmBtn.disabled = false;
                 confirmBtn.style.background = 'linear-gradient(135deg, #27ae60, #2ecc71)';
                 confirmBtn.style.cursor = 'pointer';
+                confirmBtn.textContent = 'ยืนยันตำแหน่งนี้';
             } else {
                 document.getElementById('feeText').textContent = '❌';
                 document.getElementById('feeText').style.color = '#e74c3c';
@@ -1978,6 +1979,7 @@
                 confirmBtn.disabled = true;
                 confirmBtn.style.background = '#ccc';
                 confirmBtn.style.cursor = 'not-allowed';
+                confirmBtn.textContent = 'ขออภัย เกินระยะทางรับ-ส่งค่ะ';
             }
         }
         
