@@ -1140,12 +1140,16 @@
                 <!-- ข้อมูลจัดส่ง (ถ้ามี) -->
                 <div class="receipt-section" id="receiptDeliverySection" style="display: none;">
                     <div class="receipt-section-title">🚗 ข้อมูลจัดส่ง</div>
-                    <div class="receipt-row">
-                        <span class="label">ที่อยู่</span>
-                        <span class="value" id="receiptAddress">-</span>
-                    </div>
-                    <div class="receipt-row">
-                        <span class="label">ตำแหน่งวางตะกร้า</span>
+                   <div class="receipt-row">
+                       <span class="label">ที่อยู่</span>
+                       <span class="value" id="receiptAddress">-</span>
+                </div>
+                <div class="receipt-row" id="receiptFullAddressRow" style="display: none;">
+                    <span class="label">ที่อยู่เต็ม</span>
+                    <span class="value" id="receiptFullAddress" style="font-size: 12px;">-</span>
+                </div>
+                <div class="receipt-row">
+                    <span class="label">ตำแหน่งวางตะกร้า</span>
                         <span class="value" id="receiptLocationNote">-</span>
                     </div>
                     <div class="receipt-row">
@@ -3199,6 +3203,11 @@
                 document.getElementById('receiptDeliverySection').style.display = 'block';
                 document.getElementById('receiptNote').style.display = 'block';
                 document.getElementById('receiptAddress').textContent = state.selectedAddressName || '-';
+            // แสดงที่อยู่เต็ม (ถ้ามี)
+            if (state.fullAddress && state.fullAddress !== '-') {
+                document.getElementById('receiptFullAddressRow').style.display = 'flex';
+                document.getElementById('receiptFullAddress').textContent = state.fullAddress;
+            }
                 document.getElementById('receiptLocationNote').textContent = state.locationNote || 'ไม่ระบุ';
                 document.getElementById('receiptDeliveryFee').textContent = state.deliveryFee + ' ฿';
             }
