@@ -3,8 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🧺 ร้านกังหันดีวอช - ฝากซัก-อบ-พับ (v7)</title>
+    <title>🧺 ร้านกังหันดีวอช - ฝากซัก-อบ-พับ (v8)</title>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Sarabun', sans-serif; background: #f0f2f5; min-height: 100vh; padding-bottom: 140px; }
@@ -1778,86 +1782,250 @@
         }
 
         function requestDeliveryLocation() {
-            // ตรวจสอบว่า browser รองรับ Geolocation หรือไม่
+            // แสดง Map Modal ให้ลูกค้าเลือกตำแหน่ง
+            showMapPicker();
+        }
+        
+        // ===== MAP PICKER =====
+        let map = null;
+        let marker = null;
+        let selectedLocation = null;
+        
+        function showMapPicker() {
+            // สร้าง modal
+            const modal = document.createElement('div');
+            modal.id = 'mapPickerModal';
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 9999; display: flex; flex-direction: column;';
+            
+            modal.innerHTML = `
+                <div style="background: white; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;">
+                    <button onclick="closeMapPicker()" style="background: none; border: none; font-size: 24px; cursor: pointer;">✕</button>
+                    <div style="font-weight: 600; font-size: 16px;">📍 เลือกตำแหน่งจัดส่ง</div>
+                    <div style="width: 24px;"></div>
+                </div>
+                
+                <div id="mapContainer" style="flex: 1; position: relative;">
+                    <div id="leafletMap" style="width: 100%; height: 100%;"></div>
+                    
+                    <!-- ปุ่มใช้ตำแหน่งปัจจุบัน -->
+                    <button onclick="useCurrentLocation()" style="position: absolute; bottom: 100px; right: 16px; z-index: 1000; background: white; border: none; border-radius: 50%; width: 48px; height: 48px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                        <span style="font-size: 24px;">📍</span>
+                    </button>
+                    
+                    <!-- แสดงข้อมูลระยะทาง -->
+                    <div id="distanceInfo" style="position: absolute; bottom: 160px; left: 16px; right: 16px; background: white; border-radius: 12px; padding: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); display: none;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-size: 12px; color: #666;">ระยะทางจากร้าน</div>
+                                <div id="distanceText" style="font-size: 18px; font-weight: 600; color: #2c3e50;">- กม.</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 12px; color: #666;">ค่าจัดส่ง</div>
+                                <div id="feeText" style="font-size: 18px; font-weight: 600; color: #27ae60;">- ฿</div>
+                            </div>
+                        </div>
+                        <div id="serviceStatus" style="margin-top: 8px; padding: 8px; border-radius: 8px; text-align: center; font-size: 14px;"></div>
+                    </div>
+                </div>
+                
+                <div style="background: white; padding: 16px; border-top: 1px solid #eee;">
+                    <div style="font-size: 13px; color: #666; margin-bottom: 12px; text-align: center;">
+                        📌 เลื่อนแผนที่เพื่อเลือกตำแหน่งที่ต้องการให้ไปรับ-ส่งผ้า
+                    </div>
+                    <button id="confirmLocationBtn" onclick="confirmMapLocation()" disabled style="width: 100%; padding: 14px; background: #ccc; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; font-family: inherit;">
+                        ยืนยันตำแหน่งนี้
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Initialize map หลังจาก modal แสดงแล้ว
+            setTimeout(() => {
+                initializeMap();
+            }, 100);
+        }
+        
+        function initializeMap() {
+            // ตั้งค่าเริ่มต้นที่ร้าน
+            const defaultLat = SHOP_LOCATION.lat;
+            const defaultLng = SHOP_LOCATION.lng;
+            
+            // สร้าง map
+            map = L.map('leafletMap', {
+                zoomControl: false
+            }).setView([defaultLat, defaultLng], 14);
+            
+            // เพิ่ม tile layer (OpenStreetMap)
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap'
+            }).addTo(map);
+            
+            // เพิ่ม zoom control ที่มุมขวาบน
+            L.control.zoom({ position: 'topright' }).addTo(map);
+            
+            // เพิ่ม marker ร้าน (สีน้ำเงิน)
+            const shopIcon = L.divIcon({
+                html: '<div style="background: #3498db; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);"></div>',
+                className: 'shop-marker',
+                iconSize: [20, 20],
+                iconAnchor: [10, 10]
+            });
+            L.marker([SHOP_LOCATION.lat, SHOP_LOCATION.lng], { icon: shopIcon })
+                .addTo(map)
+                .bindPopup('🏪 ร้านกังหันดีวอช');
+            
+            // สร้าง marker สำหรับตำแหน่งที่เลือก (สีแดง) - อยู่กลางจอเสมอ
+            const userIcon = L.divIcon({
+                html: '<div style="position: relative;"><div style="background: #e74c3c; width: 24px; height: 24px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);"></div></div>',
+                className: 'user-marker',
+                iconSize: [24, 24],
+                iconAnchor: [12, 24]
+            });
+            
+            // วาง marker กลางจอ
+            marker = L.marker(map.getCenter(), { icon: userIcon }).addTo(map);
+            
+            // อัปเดต marker และคำนวณระยะทางเมื่อเลื่อนแผนที่
+            map.on('move', function() {
+                const center = map.getCenter();
+                marker.setLatLng(center);
+            });
+            
+            map.on('moveend', function() {
+                const center = map.getCenter();
+                selectedLocation = { lat: center.lat, lng: center.lng };
+                updateDistanceInfo(center.lat, center.lng);
+            });
+            
+            // ลองใช้ตำแหน่งปัจจุบันเป็นค่าเริ่มต้น
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        map.setView([lat, lng], 16);
+                    },
+                    function(error) {
+                        // ถ้าไม่ได้ permission ให้ใช้ตำแหน่งร้านเป็นค่าเริ่มต้น
+                        console.log('Geolocation error:', error);
+                    },
+                    { enableHighAccuracy: true, timeout: 5000 }
+                );
+            }
+        }
+        
+        function useCurrentLocation() {
             if (!navigator.geolocation) {
-                alert('ขออภัยค่ะ 🙏\n\nเบราว์เซอร์ของคุณไม่รองรับการระบุตำแหน่ง\nกรุณาใช้เบราว์เซอร์อื่น หรือเปิดใน LINE');
+                alert('เบราว์เซอร์ไม่รองรับการระบุตำแหน่ง');
                 return;
             }
             
             // แสดง loading
-            const locationBtn = document.querySelector('.location-btn');
-            const originalText = locationBtn.innerHTML;
-            locationBtn.innerHTML = '<span>⏳</span> กำลังหาตำแหน่ง...';
-            locationBtn.disabled = true;
+            const btn = event.currentTarget;
+            btn.innerHTML = '<span style="font-size: 20px;">⏳</span>';
+            btn.disabled = true;
             
-            // ขอ Location จากผู้ใช้
             navigator.geolocation.getCurrentPosition(
-                // Success callback
                 function(position) {
-                    const userLat = position.coords.latitude;
-                    const userLng = position.coords.longitude;
-                    
-                    // คำนวณระยะทาง
-                    const distance = calculateDistance(
-                        SHOP_LOCATION.lat, SHOP_LOCATION.lng,
-                        userLat, userLng
-                    );
-                    const distanceRounded = Math.round(distance * 100) / 100;
-                    
-                    // หาค่าจัดส่ง
-                    const deliveryInfo = getDeliveryFee(distance);
-                    
-                    // เก็บพิกัดใน state
-                    state.userLocation = { lat: userLat, lng: userLng };
-                    state.distance = distanceRounded;
-                    
-                    if (deliveryInfo.available) {
-                        // อยู่ในพื้นที่บริการ
-                        state.selectedAddressId = 'new';
-                        state.selectedAddressName = 'ที่อยู่ใหม่ (' + distanceRounded + ' กม.)';
-                        state.deliveryFee = deliveryInfo.fee;
-                        
-                        document.getElementById('newAddressName').textContent = state.selectedAddressName;
-                        document.getElementById('newAddressFee').textContent = deliveryInfo.fee + '฿';
-                        document.getElementById('newAddressConfirm').classList.remove('hidden');
-                        
-                        // แสดงข้อความยืนยัน
-                        showLocationSuccess(distanceRounded, deliveryInfo);
-                    } else {
-                        // นอกพื้นที่บริการ
-                        showOutOfServiceArea(distanceRounded);
-                    }
-                    
-                    // คืนค่าปุ่ม
-                    locationBtn.innerHTML = originalText;
-                    locationBtn.disabled = false;
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    map.setView([lat, lng], 17);
+                    btn.innerHTML = '<span style="font-size: 24px;">📍</span>';
+                    btn.disabled = false;
                 },
-                // Error callback
                 function(error) {
-                    locationBtn.innerHTML = originalText;
-                    locationBtn.disabled = false;
+                    btn.innerHTML = '<span style="font-size: 24px;">📍</span>';
+                    btn.disabled = false;
                     
-                    let errorMessage = 'ไม่สามารถระบุตำแหน่งได้';
-                    switch(error.code) {
-                        case error.PERMISSION_DENIED:
-                            errorMessage = 'กรุณาอนุญาตการเข้าถึงตำแหน่งค่ะ\n\nวิธีเปิด:\n1. กดไอคอน 🔒 หน้า URL\n2. เลือก "ตำแหน่ง" → "อนุญาต"\n3. รีเฟรชหน้าเว็บ';
-                            break;
-                        case error.POSITION_UNAVAILABLE:
-                            errorMessage = 'ไม่สามารถระบุตำแหน่งได้\nกรุณาเปิด GPS แล้วลองใหม่ค่ะ';
-                            break;
-                        case error.TIMEOUT:
-                            errorMessage = 'หมดเวลาในการระบุตำแหน่ง\nกรุณาลองใหม่ค่ะ';
-                            break;
+                    let msg = 'ไม่สามารถระบุตำแหน่งได้';
+                    if (error.code === error.PERMISSION_DENIED) {
+                        msg = 'กรุณาอนุญาตการเข้าถึงตำแหน่งค่ะ';
                     }
-                    alert('ขออภัยค่ะ 🙏\n\n' + errorMessage);
+                    alert(msg);
                 },
-                // Options
-                {
-                    enableHighAccuracy: true,
-                    timeout: 10000,
-                    maximumAge: 0
-                }
+                { enableHighAccuracy: true, timeout: 10000 }
             );
+        }
+        
+        function updateDistanceInfo(lat, lng) {
+            const distance = calculateDistance(SHOP_LOCATION.lat, SHOP_LOCATION.lng, lat, lng);
+            const distanceRounded = Math.round(distance * 100) / 100;
+            const deliveryInfo = getDeliveryFee(distance);
+            
+            // แสดงข้อมูล
+            document.getElementById('distanceInfo').style.display = 'block';
+            document.getElementById('distanceText').textContent = distanceRounded + ' กม.';
+            
+            const statusDiv = document.getElementById('serviceStatus');
+            const confirmBtn = document.getElementById('confirmLocationBtn');
+            
+            if (deliveryInfo.available) {
+                document.getElementById('feeText').textContent = deliveryInfo.fee + ' ฿';
+                document.getElementById('feeText').style.color = '#27ae60';
+                statusDiv.innerHTML = '✅ อยู่ในพื้นที่บริการ (' + deliveryInfo.feeText + ')';
+                statusDiv.style.background = '#d4edda';
+                statusDiv.style.color = '#155724';
+                confirmBtn.disabled = false;
+                confirmBtn.style.background = 'linear-gradient(135deg, #27ae60, #2ecc71)';
+                confirmBtn.style.cursor = 'pointer';
+            } else {
+                document.getElementById('feeText').textContent = '❌';
+                document.getElementById('feeText').style.color = '#e74c3c';
+                statusDiv.innerHTML = '❌ นอกพื้นที่บริการ (เกิน ' + MAX_DELIVERY_DISTANCE + ' กม.)';
+                statusDiv.style.background = '#f8d7da';
+                statusDiv.style.color = '#721c24';
+                confirmBtn.disabled = true;
+                confirmBtn.style.background = '#ccc';
+                confirmBtn.style.cursor = 'not-allowed';
+            }
+        }
+        
+        function confirmMapLocation() {
+            if (!selectedLocation) return;
+            
+            const distance = calculateDistance(
+                SHOP_LOCATION.lat, SHOP_LOCATION.lng,
+                selectedLocation.lat, selectedLocation.lng
+            );
+            const distanceRounded = Math.round(distance * 100) / 100;
+            const deliveryInfo = getDeliveryFee(distance);
+            
+            if (!deliveryInfo.available) {
+                alert('ตำแหน่งนี้อยู่นอกพื้นที่บริการค่ะ');
+                return;
+            }
+            
+            // บันทึกข้อมูล
+            state.userLocation = selectedLocation;
+            state.distance = distanceRounded;
+            state.selectedAddressId = 'new';
+            state.selectedAddressName = 'ที่อยู่ใหม่ (' + distanceRounded + ' กม.)';
+            state.deliveryFee = deliveryInfo.fee;
+            
+            // อัปเดต UI
+            document.getElementById('newAddressName').textContent = state.selectedAddressName;
+            document.getElementById('newAddressFee').textContent = deliveryInfo.fee + '฿';
+            document.getElementById('newAddressConfirm').classList.remove('hidden');
+            
+            // ปิด modal
+            closeMapPicker();
+            
+            // แสดงข้อความยืนยัน
+            showLocationSuccess(distanceRounded, deliveryInfo);
+        }
+        
+        function closeMapPicker() {
+            const modal = document.getElementById('mapPickerModal');
+            if (modal) {
+                modal.remove();
+            }
+            // ล้าง map
+            if (map) {
+                map.remove();
+                map = null;
+                marker = null;
+            }
         }
         
         // แสดงข้อความเมื่ออยู่ในพื้นที่บริการ
