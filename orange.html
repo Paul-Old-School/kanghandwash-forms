@@ -2683,20 +2683,24 @@
             
             // ถ้ามีอบ
             if (state.serviceType !== 'wash_only') {
+                const dryTempNames = { high: 'สูง', medium: 'กลาง', low: 'ต่ำ' };
+                
                 if (state.serviceType === 'wash_separate_dry_together') {
                     const dryPrice = PRICING.dry[state.drySize].price + state.extraTime;
                     const dryTime = getDryTime(state.drySize, state.extraTime);
+                    const dryTempText = dryTempNames[state.dryTemp] || 'กลาง';
                     washHtml += '<div style="background: rgba(255,152,0,0.2); border-radius: 8px; padding: 10px; margin-top: 8px;">';
                     washHtml += '<div style="font-weight: 600; margin-bottom: 6px;">🌀 อบรวม</div>';
-                    washHtml += '<div class="summary-item"><span class="label">ขนาด ' + state.drySize + ' | ' + dryTime + ' นาที</span><span class="value">' + dryPrice + ' ฿</span></div>';
+                    washHtml += '<div class="summary-item"><span class="label">ขนาด ' + state.drySize + ' | ' + dryTempText + ' | ' + dryTime + ' นาที</span><span class="value">' + dryPrice + ' ฿</span></div>';
                     washHtml += '</div>';
                 } else {
                     state.baskets.forEach((b, idx) => {
                         const dryPrice = PRICING.dry[b.drySize].price + b.extraTime;
                         const dryTime = getDryTime(b.drySize, b.extraTime);
+                        const dryTempText = dryTempNames[b.dryTemp] || 'กลาง';
                         washHtml += '<div style="background: rgba(255,152,0,0.2); border-radius: 8px; padding: 10px; margin-top: 8px;">';
                         washHtml += '<div style="font-weight: 600; margin-bottom: 6px;">🌀 อบเครื่องที่ ' + (idx + 1) + '</div>';
-                        washHtml += '<div class="summary-item"><span class="label">ขนาด ' + b.drySize + ' | ' + dryTime + ' นาที</span><span class="value">' + dryPrice + ' ฿</span></div>';
+                        washHtml += '<div class="summary-item"><span class="label">ขนาด ' + b.drySize + ' | ' + dryTempText + ' | ' + dryTime + ' นาที</span><span class="value">' + dryPrice + ' ฿</span></div>';
                         washHtml += '</div>';
                     });
                 }
