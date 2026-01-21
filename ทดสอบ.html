@@ -826,9 +826,9 @@
                         </div>
                     </div>
                     <div class="location-note-input">
-                        <label>🏠 ที่อยู่เพิ่มเติม (ถ้ามี)</label>
+                        <label>🏠 ที่อยู่เพิ่มเติม <span style="color: #e74c3c;">*</span></label>
                         <textarea id="fullAddressInputNew" placeholder="เช่น 123/45 หมู่บ้านสิริ ซอย 5 ต.บางบ่อ อ.บางบ่อ จ.สมุทรปราการ 10560" oninput="updateFullAddress(this.value)" rows="2" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; font-family: inherit; resize: none;"></textarea>
-                        <div class="hint">กรอกที่อยู่เต็มเพื่อความสะดวกในการจัดส่ง</div>
+                        <div class="hint">กรุณากรอกที่อยู่เพื่อให้คนขับสามารถไปส่งได้ถูกต้อง</div>
                     </div>
                     <div class="location-note-input" style="margin-top: 12px;">
                         <label>📝 ระบุตำแหน่งวางตะกร้า</label>
@@ -852,11 +852,11 @@
             <button class="back-btn" onclick="goBackToCustomerType()">← กลับ</button>
             <div class="card">
                 <div class="card-title"><span class="num">🔍</span> ค้นหาข้อมูลลูกค้า</div>
-                <div class="card-subtitle">กรุณากรอกเบอร์โทรที่เคยใช้บริการค่ะ</div>
+                <div class="card-subtitle">กรุณากรอกเบอร์มือถือค่ะ</div>
                 
                 <div class="phone-search-section">
                     <div class="phone-input-group">
-                        <input type="tel" id="searchPhoneInput" placeholder="เช่น 0894603746" maxlength="10" 
+                        <input type="tel" id="searchPhoneInput" placeholder="เช่น 0878889999" maxlength="10" 
                                oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                style="width: 100%; padding: 16px; font-size: 18px; text-align: center; border: 2px solid #3498db; border-radius: 12px; font-family: inherit;">
                     </div>
@@ -893,9 +893,9 @@
                         </div>
                     </div>
                     <div class="location-note-input">
-                        <label>🏠 ที่อยู่เพิ่มเติม (ถ้ามี)</label>
+                        <label>🏠 ที่อยู่เพิ่มเติม <span style="color: #e74c3c;">*</span></label>
                         <textarea id="fullAddressInputExisting" placeholder="เช่น 123/45 หมู่บ้านสิริ ซอย 5 ต.บางบ่อ อ.บางบ่อ จ.สมุทรปราการ 10560" oninput="updateFullAddress(this.value)" rows="2" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; font-family: inherit; resize: none;"></textarea>
-                        <div class="hint">กรอกที่อยู่เต็มเพื่อความสะดวกในการจัดส่ง</div>
+                        <div class="hint">กรุณากรอกที่อยู่เพื่อให้คนขับสามารถไปส่งได้ถูกต้อง</div>
                     </div>
                     <div class="location-note-input" style="margin-top: 12px;">
                         <label>📝 ระบุตำแหน่งวางตะกร้า</label>
@@ -928,7 +928,7 @@
                             <div class="summary-item"><span class="label">ที่อยู่</span><span class="value" id="summaryAddress">-</span></div>
                             <div class="summary-item"><span class="label">ที่อยู่เพิ่มเติม</span><span class="value" id="summaryFullAddress">-</span></div>
                             <div class="summary-item"><span class="label">ตำแหน่งวางตะกร้า</span><span class="value" id="summaryLocationNote">-</span></div>
-                            <div class="summary-item"><span class="label">ค่าบริการรับ-ส่ง</span><span class="value" id="summaryDeliveryFee">-</span></div>
+                            <div class="summary-item"><span class="label">ค่าบริการส่ง</span><span class="value" id="summaryDeliveryFee">-</span></div>
                         </div>
                     </div>
                     <div class="summary-divider"></div>
@@ -1153,7 +1153,7 @@
                         <span class="value" id="receiptLocationNote">-</span>
                     </div>
                     <div class="receipt-row">
-                        <span class="label">ค่าบริการรับ-ส่ง</span>
+                        <span class="label">ค่าบริการส่ง</span>
                         <span class="value" id="receiptDeliveryFee">-</span>
                     </div>
                 </div>
@@ -1255,10 +1255,10 @@
             mapUrl: 'https://maps.app.goo.gl/SewLbP5pKUMF4PQd7'
         };
         
-        // เงื่อนไขค่าจัดส่ง (ไป-กลับ)
+        // เงื่อนไขค่าจัดส่ง (ส่งอย่างเดียว - ลูกค้ามาฝากที่ร้าน)
         const DELIVERY_ZONES = [
-            { maxDistance: 2, fee: 40, feeText: 'รับ 20฿ + ส่ง 20฿' },
-            { maxDistance: 3, fee: 60, feeText: 'รับ 30฿ + ส่ง 30฿' }
+            { maxDistance: 2, fee: 20, feeText: 'ค่าส่ง 20฿' },
+            { maxDistance: 3, fee: 30, feeText: 'ค่าส่ง 30฿' }
         ];
         const MAX_DELIVERY_DISTANCE = 3; // กม.
         
@@ -1564,6 +1564,23 @@
         }
         
         function goToDeliveryQuestion() {
+            // ตรวจสอบว่าถ่ายรูปตะกร้า + บัตรคิวครบทุกตะกร้าหรือไม่
+            const missingPhotos = [];
+            state.baskets.forEach((basket, idx) => {
+                if (!basket.photo) {
+                    missingPhotos.push(idx + 1);
+                }
+            });
+            
+            if (missingPhotos.length > 0) {
+                if (missingPhotos.length === 1) {
+                    alert('📷 กรุณาถ่ายรูปตะกร้า + บัตรคิว ก่อนดำเนินการต่อค่ะ');
+                } else {
+                    alert('📷 กรุณาถ่ายรูปตะกร้า + บัตรคิว ให้ครบทุกตะกร้าก่อนดำเนินการต่อค่ะ\n\nตะกร้าที่ยังไม่มีรูป: ' + missingPhotos.join(', '));
+                }
+                return; // ไม่ให้ไปขั้นตอนถัดไป
+            }
+            
             // ซ่อน form และแสดงหน้าถามส่งผ้า
             showDeliveryQuestion();
         }
@@ -1592,9 +1609,9 @@
             
             setTimeout(() => {
                 if (wantDelivery) {
-                    // ไปหน้าเลือกประเภทลูกค้า
+                    // ไปหน้าค้นหาข้อมูลลูกค้าโดยตรง (ข้ามหน้าเลือกประเภทลูกค้า)
                     document.getElementById('stepDeliveryQuestion').classList.add('hidden');
-                    document.getElementById('stepDeliveryCustomerType').classList.remove('hidden');
+                    document.getElementById('stepSearchCustomer').classList.remove('hidden');
                 } else {
                     // ไป step3Summary (สรุปรายการ) เลย - ไม่ต้องการส่ง
                     proceedToStep3();
@@ -1606,6 +1623,7 @@
             document.getElementById('stepDeliveryCustomerType').classList.add('hidden');
             document.getElementById('stepDeliveryAddressNew').classList.add('hidden');
             document.getElementById('stepDeliveryAddressExisting').classList.add('hidden');
+            document.getElementById('stepSearchCustomer').classList.add('hidden');
             document.getElementById('stepDeliveryQuestion').classList.remove('hidden');
             document.querySelectorAll('.delivery-choice-btn').forEach(btn => btn.classList.remove('active'));
             state.wantDelivery = false;
@@ -1944,7 +1962,7 @@
                 
                 <div style="background: white; padding: 16px; border-top: 1px solid #eee;">
                     <div style="font-size: 13px; color: #666; margin-bottom: 12px; text-align: center;">
-                        📌 เลื่อนแผนที่เพื่อเลือกตำแหน่งที่ต้องการให้ไปรับ-ส่งผ้า
+                        📌 เลื่อนแผนที่เพื่อเลือกตำแหน่งที่ต้องการให้ไปส่งผ้า
                     </div>
                     <button id="confirmLocationBtn" onclick="confirmMapLocation()" disabled style="width: 100%; padding: 14px; background: #ccc; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; font-family: inherit;">
                         ยืนยันตำแหน่งนี้
@@ -2093,7 +2111,7 @@
                 confirmBtn.disabled = true;
                 confirmBtn.style.background = '#ccc';
                 confirmBtn.style.cursor = 'not-allowed';
-                confirmBtn.textContent = 'ขออภัย เกินระยะทางรับ-ส่งค่ะ';
+                confirmBtn.textContent = 'ขออภัย เกินระยะทางจัดส่งค่ะ';
             }
         }
         
@@ -2148,7 +2166,7 @@
         function showLocationSuccess(distance, deliveryInfo) {
             const message = '✅ ตรวจสอบพิกัดเรียบร้อยค่ะ\n\n' +
                            '📍 ระยะทาง: ' + distance + ' กม.\n' +
-                           '💰 ค่าบริการรับ-ส่ง: ' + deliveryInfo.fee + ' บาท\n' +
+                           '💰 ค่าบริการส่ง: ' + deliveryInfo.fee + ' บาท\n' +
                            '(' + deliveryInfo.feeText + ')';
             alert(message);
         }
@@ -2170,7 +2188,7 @@
                     
                     <div style="background: #fee2e2; padding: 12px; border-radius: 8px; margin-bottom: 16px;">
                         <p style="margin: 0 0 8px 0;">📍 ระยะทาง: <strong>${distance} กม.</strong></p>
-                        <p style="margin: 0; color: #dc2626;">❌ พิกัดของคุณลูกค้าอยู่นอกพื้นที่บริการรับ-ส่งผ้าค่ะ</p>
+                        <p style="margin: 0; color: #dc2626;">❌ พิกัดของคุณลูกค้าอยู่นอกพื้นที่บริการส่งผ้าค่ะ</p>
                     </div>
                     
                     <div style="border-top: 1px solid #eee; padding-top: 16px; text-align: left;">
@@ -2238,6 +2256,13 @@
                 alert('กรุณาเลือกหรือส่งพิกัดที่อยู่ก่อนค่ะ');
                 return;
             }
+            
+            // ตรวจสอบว่ากรอกที่อยู่เพิ่มเติมหรือไม่
+            if (!state.fullAddress || state.fullAddress.trim() === '' || state.fullAddress === '-') {
+                alert('📍 กรุณากรอกที่อยู่เพิ่มเติมค่ะ\n\nเพื่อให้คนขับสามารถไปส่งผ้าได้ถูกต้อง');
+                return;
+            }
+            
             proceedToStep3();
         }
 
