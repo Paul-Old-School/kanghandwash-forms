@@ -892,11 +892,6 @@
                             <span class="value" id="existingAddressFee">-</span>
                         </div>
                     </div>
-                    <div class="location-note-input">
-                        <label>🏠 ที่อยู่เพิ่มเติม <span style="color: #e74c3c;">*</span></label>
-                        <textarea id="fullAddressInputExisting" placeholder="เช่น 123/45 หมู่บ้านสิริ ซอย 5 ต.บางบ่อ อ.บางบ่อ จ.สมุทรปราการ 10560" oninput="updateFullAddress(this.value)" rows="2" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; font-family: inherit; resize: none;"></textarea>
-                        <div class="hint">กรุณากรอกที่อยู่เพื่อให้คนขับสามารถไปส่งได้ถูกต้อง</div>
-                    </div>
                     <div class="location-note-input" style="margin-top: 12px;">
                         <label>📝 ระบุตำแหน่งวางตะกร้า <span style="color: #e74c3c;">*</span></label>
                         <input type="text" id="locationNoteInputExisting" placeholder="เช่น หน้าประตูห้อง, ล็อบบี้ชั้น 1" oninput="updateDeliveryLocationNote(this.value)">
@@ -2227,6 +2222,7 @@
             element.classList.add('active');
             state.selectedAddressId = id;
             state.selectedAddressName = name;
+            state.fullAddress = name; // ใช้ที่อยู่ที่เลือกเป็น fullAddress
             state.deliveryFee = fee;
             document.getElementById('existingAddressName').textContent = name;
             document.getElementById('existingAddressFee').textContent = fee + '฿';
@@ -2255,11 +2251,17 @@
                 return;
             }
             
-            // ตรวจสอบว่ากรอกที่อยู่เพิ่มเติมหรือไม่
-            if (!state.fullAddress || state.fullAddress.trim() === '' || state.fullAddress === '-') {
-                alert('📍 กรุณากรอกที่อยู่เพิ่มเติมค่ะ\n\nเพื่อให้คนขับสามารถไปส่งผ้าได้ถูกต้อง');
-                return;
+            // ถ้าเป็นที่อยู่ใหม่ (selectedAddressId === 'new') ต้องตรวจสอบ fullAddress
+            if (state.selectedAddressId === 'new') {
+                // ตรวจสอบว่ากรอกที่อยู่เพิ่มเติมหรือไม่
+                if (!state.fullAddress || state.fullAddress.trim() === '' || state.fullAddress === '-') {
+                    alert('📍 กรุณากรอกที่อยู่เพิ่มเติมค่ะ\n\nเพื่อให้คนขับสามารถไปส่งผ้าได้ถูกต้อง');
+                    return;
+                }
+                // ใช้ fullAddress เป็น selectedAddressName
+                state.selectedAddressName = state.fullAddress;
             }
+            // ถ้าเป็นที่อยู่เดิม → fullAddress ถูก set ไว้แล้วใน selectDeliveryAddress
             
             // ตรวจสอบว่าระบุตำแหน่งวางตะกร้าหรือไม่
             if (!state.locationNote || state.locationNote.trim() === '' || state.locationNote === '-') {
