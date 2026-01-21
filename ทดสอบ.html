@@ -802,7 +802,7 @@
 
         <!-- Delivery Address Section - New Customer -->
         <div id="stepDeliveryAddressNew" class="hidden">
-            <button class="back-btn" onclick="goBackToCustomerType()">← กลับ</button>
+            <button class="back-btn" onclick="goBackToSearchCustomer()">← กลับ</button>
             <div class="card">
                 <div class="card-title"><span class="num">📍</span> ส่งพิกัดที่อยู่</div>
                 <div class="card-subtitle">🆕 ยินดีต้อนรับลูกค้าใหม่ค่ะ!</div>
@@ -831,9 +831,9 @@
                         <div class="hint">กรุณากรอกที่อยู่เพื่อให้คนขับสามารถไปส่งได้ถูกต้อง</div>
                     </div>
                     <div class="location-note-input" style="margin-top: 12px;">
-                        <label>📝 ระบุตำแหน่งวางตะกร้า</label>
+                        <label>📝 ระบุตำแหน่งวางตะกร้า <span style="color: #e74c3c;">*</span></label>
                         <input type="text" id="locationNoteInputNew" placeholder="เช่น หน้าประตูห้อง, ล็อบบี้ชั้น 1" oninput="updateDeliveryLocationNote(this.value)">
-                        <div class="hint">ระบุจุดที่คนขับสามารถมาส่งผ้าได้ง่าย</div>
+                        <div class="hint">กรุณาระบุจุดที่คนขับสามารถมาส่งผ้าได้</div>
                     </div>
                     <div class="delivery-time-note">
                         <div class="note-row"><span>📢</span> แจ้งก่อน 15:00 น. → ส่งผ้าคืนภายใน 18:00 น. วันเดียวกัน</div>
@@ -849,7 +849,7 @@
         <!-- Delivery Address Section - Existing Customer -->
         <!-- Step: ค้นหาลูกค้าเก่าด้วยเบอร์โทร -->
         <div id="stepSearchCustomer" class="hidden">
-            <button class="back-btn" onclick="goBackToCustomerType()">← กลับ</button>
+            <button class="back-btn" onclick="goBackToDeliveryQuestion()">← กลับ</button>
             <div class="card">
                 <div class="card-title"><span class="num">🔍</span> ค้นหาข้อมูลลูกค้า</div>
                 <div class="card-subtitle">กรุณากรอกเบอร์มือถือค่ะ</div>
@@ -898,9 +898,9 @@
                         <div class="hint">กรุณากรอกที่อยู่เพื่อให้คนขับสามารถไปส่งได้ถูกต้อง</div>
                     </div>
                     <div class="location-note-input" style="margin-top: 12px;">
-                        <label>📝 ระบุตำแหน่งวางตะกร้า</label>
+                        <label>📝 ระบุตำแหน่งวางตะกร้า <span style="color: #e74c3c;">*</span></label>
                         <input type="text" id="locationNoteInputExisting" placeholder="เช่น หน้าประตูห้อง, ล็อบบี้ชั้น 1" oninput="updateDeliveryLocationNote(this.value)">
-                        <div class="hint">ระบุจุดที่คนขับสามารถมาส่งผ้าได้ง่าย</div>
+                        <div class="hint">กรุณาระบุจุดที่คนขับสามารถมาส่งผ้าได้</div>
                     </div>
                     <div class="delivery-time-note">
                         <div class="note-row"><span>📢</span> แจ้งก่อน 15:00 น. → ส่งผ้าคืนภายใน 18:00 น. วันเดียวกัน</div>
@@ -1574,9 +1574,9 @@
             
             if (missingPhotos.length > 0) {
                 if (missingPhotos.length === 1) {
-                    alert('📷 กรุณาถ่ายรูปตะกร้า + บัตรคิว ก่อนดำเนินการต่อค่ะ');
+                    alert('📷 กรุณาส่งรูปถ่ายบัตรคิว+ตะกร้าผ้า ก่อนดำเนินการต่อค่ะ');
                 } else {
-                    alert('📷 กรุณาถ่ายรูปตะกร้า + บัตรคิว ให้ครบทุกตะกร้าก่อนดำเนินการต่อค่ะ\n\nตะกร้าที่ยังไม่มีรูป: ' + missingPhotos.join(', '));
+                    alert('📷 กรุณาส่งรูปถ่ายบัตรคิว+ตะกร้าผ้า ให้ครบทุกตะกร้าก่อนดำเนินการต่อค่ะ\n\nตะกร้าที่ยังไม่มีรูป: ' + missingPhotos.join(', '));
                 }
                 return; // ไม่ให้ไปขั้นตอนถัดไป
             }
@@ -1647,7 +1647,10 @@
 
         function goBackToSearchCustomer() {
             document.getElementById('stepDeliveryAddressExisting').classList.add('hidden');
+            document.getElementById('stepDeliveryAddressNew').classList.add('hidden');
             document.getElementById('stepSearchCustomer').classList.remove('hidden');
+            // Reset search result
+            document.getElementById('searchResultSection').classList.add('hidden');
         }
 
         function goBackToCustomerType() {
@@ -2263,6 +2266,12 @@
                 return;
             }
             
+            // ตรวจสอบว่าระบุตำแหน่งวางตะกร้าหรือไม่
+            if (!state.locationNote || state.locationNote.trim() === '' || state.locationNote === '-') {
+                alert('📝 กรุณาระบุตำแหน่งวางตะกร้าค่ะ\n\nเช่น หน้าประตูห้อง, ล็อบบี้ชั้น 1');
+                return;
+            }
+            
             proceedToStep3();
         }
 
@@ -2684,7 +2693,7 @@
                 html += '<div class="section-header"><span class="icon">🧺</span><span class="text">ข้อมูลการซัก</span></div>';
                 html += '<div class="basket-card"><div class="basket-card-header"><div class="basket-card-title"><span>🧺</span> ตะกร้าซัก</div><div class="basket-card-price" id="singleWashPrice">' + wp + ' ฿</div></div>';
                 html += '<div class="form-row"><div><label class="form-label">เลขบัตรคิวสีส้ม</label><input type="text" inputmode="numeric" pattern="[0-9]*" class="form-input queue-input" placeholder="#" value="' + b.queueNumber + '" oninput="updateSingleBasket(\'queueNumber\', this.value)"></div>';
-                html += '<div><label class="form-label">📷 ถ่ายรูปตะกร้า + บัตรคิว</label><div class="photo-upload ' + (b.photo ? 'has-photo' : '') + '" onclick="uploadSinglePhoto()"><div class="icon">' + (b.photo ? '✅' : '📷') + '</div><p>' + (b.photo ? 'อัปโหลดแล้ว' : 'แตะเพื่อถ่ายรูป') + '</p></div></div></div>';
+                html += '<div><label class="form-label">📷 ส่งรูปถ่ายบัตรคิว+ตะกร้าผ้า</label><div class="photo-upload ' + (b.photo ? 'has-photo' : '') + '" onclick="uploadSinglePhoto()"><div class="icon">' + (b.photo ? '✅' : '📷') + '</div><p>' + (b.photo ? 'อัปโหลดแล้ว' : 'แตะเพื่อส่งรูป') + '</p></div></div></div>';
                 
                 html += '<div class="form-group"><label class="form-label">🧴 น้ำยาซักผ้า</label><div class="detergent-group">';
                 html += '<button class="detergent-btn ' + (b.detergent === 'own' ? 'active' : '') + '" onclick="updateSingleDetergent(\'own\')"><span class="check">✓</span><div class="icon">🧴</div><div class="title">มีน้ำยาซักน้ำยาปรับมาเอง</div></button>';
@@ -2711,7 +2720,7 @@
                 
                 if (!showWash) {
                     html += '<div class="form-row"><div><label class="form-label">เลขบัตรคิวสีส้ม</label><input type="text" inputmode="numeric" pattern="[0-9]*" class="form-input queue-input" placeholder="#" value="' + b.queueNumber + '" oninput="updateSingleBasket(\'queueNumber\', this.value)"></div>';
-                    html += '<div><label class="form-label">📷 ถ่ายรูป</label><div class="photo-upload ' + (b.photo ? 'has-photo' : '') + '" onclick="uploadSinglePhoto()"><div class="icon">' + (b.photo ? '✅' : '📷') + '</div><p>' + (b.photo ? 'อัปโหลดแล้ว' : 'ถ่ายรูป') + '</p></div></div></div>';
+                    html += '<div><label class="form-label">📷 ส่งรูปถ่ายบัตรคิว+ตะกร้าผ้า</label><div class="photo-upload ' + (b.photo ? 'has-photo' : '') + '" onclick="uploadSinglePhoto()"><div class="icon">' + (b.photo ? '✅' : '📷') + '</div><p>' + (b.photo ? 'อัปโหลดแล้ว' : 'แตะเพื่อส่งรูป') + '</p></div></div></div>';
                 }
                 
                 html += '<div class="form-row"><div><label class="form-label">📏 ขนาดเครื่องอบ</label><select class="form-select" onchange="updateSingleBasket(\'drySize\', this.value)">';
@@ -2851,7 +2860,7 @@
                     const wp = getWashPrice(b.detergent, b.washSize, b.waterTemp);
                     html += '<div class="basket-card"><div class="basket-card-header"><div class="basket-card-title"><span>🧺</span> ตะกร้าซักที่ ' + num + '</div><div class="basket-card-price" id="multiWashPrice-' + num + '">' + wp + ' ฿</div></div>';
                     html += '<div class="form-row"><div><label class="form-label">เลขบัตรคิวสีส้ม</label><input type="text" inputmode="numeric" pattern="[0-9]*" class="form-input queue-input" placeholder="#" value="' + b.queueNumber + '" oninput="updateMultiBasket(' + idx + ', \'queueNumber\', this.value)"></div>';
-                    html += '<div><label class="form-label">📷 ถ่ายรูป</label><div class="photo-upload ' + (b.photo ? 'has-photo' : '') + '" onclick="uploadMultiPhoto(' + idx + ')"><div class="icon">' + (b.photo ? '✅' : '📷') + '</div><p>' + (b.photo ? 'อัปโหลดแล้ว' : 'ถ่ายรูป') + '</p></div></div></div>';
+                    html += '<div><label class="form-label">📷 ส่งรูปถ่ายบัตรคิว+ตะกร้าผ้า</label><div class="photo-upload ' + (b.photo ? 'has-photo' : '') + '" onclick="uploadMultiPhoto(' + idx + ')"><div class="icon">' + (b.photo ? '✅' : '📷') + '</div><p>' + (b.photo ? 'อัปโหลดแล้ว' : 'แตะเพื่อส่งรูป') + '</p></div></div></div>';
                     
                     html += '<div class="form-group"><label class="form-label">🧴 น้ำยาซักผ้า</label><div class="detergent-group">';
                     html += '<button class="detergent-btn ' + (b.detergent === 'own' ? 'active' : '') + '" onclick="updateMultiDetergent(' + idx + ', \'own\')"><span class="check">✓</span><div class="icon">🧴</div><div class="title">มีน้ำยาซักน้ำยาปรับมาเอง</div></button>';
@@ -2903,7 +2912,7 @@
                         html += '<div class="basket-card dry"><div class="basket-card-header"><div class="basket-card-title"><span>🌀</span> เครื่องอบที่ ' + num + '</div><div class="basket-card-price" id="multiDryPrice-' + num + '">' + dp + ' ฿</div></div>';
                         if (!showWash) {
                             html += '<div class="form-row"><div><label class="form-label">เลขบัตรคิวสีส้ม</label><input type="text" inputmode="numeric" pattern="[0-9]*" class="form-input queue-input" placeholder="#" value="' + b.queueNumber + '" oninput="updateMultiBasket(' + idx + ', \'queueNumber\', this.value)"></div>';
-                            html += '<div><label class="form-label">📷 ถ่ายรูป</label><div class="photo-upload ' + (b.photo ? 'has-photo' : '') + '" onclick="uploadMultiPhoto(' + idx + ')"><div class="icon">' + (b.photo ? '✅' : '📷') + '</div><p>' + (b.photo ? 'อัปโหลดแล้ว' : 'ถ่ายรูป') + '</p></div></div></div>';
+                            html += '<div><label class="form-label">📷 ส่งรูปถ่ายบัตรคิว+ตะกร้าผ้า</label><div class="photo-upload ' + (b.photo ? 'has-photo' : '') + '" onclick="uploadMultiPhoto(' + idx + ')"><div class="icon">' + (b.photo ? '✅' : '📷') + '</div><p>' + (b.photo ? 'อัปโหลดแล้ว' : 'แตะเพื่อส่งรูป') + '</p></div></div></div>';
                         }
                         html += '<div class="form-row"><div><label class="form-label">📏 ขนาดเครื่องอบ</label><select class="form-select" onchange="updateMultiBasket(' + idx + ', \'drySize\', this.value)">';
                         Object.entries(PRICING.dry).forEach(([size, data]) => { html += '<option value="' + size + '" ' + (b.drySize === size ? 'selected' : '') + '>' + size + ' (' + data.price + '฿)</option>'; });
