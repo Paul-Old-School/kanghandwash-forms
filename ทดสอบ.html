@@ -929,7 +929,7 @@
                         <div class="summary-section-title" style="color: #FFD700;">🚗 ข้อมูลจัดส่ง</div>
                         <div class="summary-items">
                             <div class="summary-item"><span class="label">ที่อยู่</span><span class="value" id="summaryAddress">-</span></div>
-                            <div class="summary-item"><span class="label">ที่อยู่เพิ่มเติม</span><span class="value" id="summaryFullAddress">-</span></div>
+                            <div class="summary-item" id="summaryFullAddressRow"><span class="label">ที่อยู่เพิ่มเติม</span><span class="value" id="summaryFullAddress">-</span></div>
                             <div class="summary-item"><span class="label">ตำแหน่งวางตะกร้า</span><span class="value" id="summaryLocationNote">-</span></div>
                             <div class="summary-item"><span class="label">ค่าบริการส่ง</span><span class="value" id="summaryDeliveryFee">-</span></div>
                         </div>
@@ -2637,7 +2637,15 @@
                 document.getElementById('summaryDeliverySection').classList.remove('hidden');
                 document.getElementById('summaryDeliveryTimeNote').classList.remove('hidden');
                 document.getElementById('summaryAddress').textContent = state.selectedAddressName;
-                document.getElementById('summaryFullAddress').textContent = state.fullAddress || 'ไม่ระบุ';
+                
+                // แสดงที่อยู่เพิ่มเติมเฉพาะเมื่อไม่ซ้ำกับที่อยู่หลัก
+                if (state.fullAddress && state.fullAddress !== state.selectedAddressName) {
+                    document.getElementById('summaryFullAddressRow').style.display = 'flex';
+                    document.getElementById('summaryFullAddress').textContent = state.fullAddress;
+                } else {
+                    document.getElementById('summaryFullAddressRow').style.display = 'none';
+                }
+                
                 document.getElementById('summaryLocationNote').textContent = state.locationNote || 'ไม่ระบุ';
                 document.getElementById('summaryDeliveryFee').textContent = state.deliveryFee + ' ฿';
             } else {
@@ -3197,6 +3205,15 @@
         });
         
         // เตรียมข้อมูลส่ง Webhook (ส่ง URLs แทน base64)
+        // ตรวจสอบว่า fullAddress ซ้ำกับ address หรือไม่
+        const addressForWebhook = state.wantDelivery ? state.selectedAddressName : '-';
+        let fullAddressForWebhook = state.wantDelivery ? state.fullAddress : '-';
+        
+        // ถ้า fullAddress เหมือนกับ address (เลือกจากลิสประวัติ) → ไม่ต้องส่งซ้ำ
+        if (fullAddressForWebhook === addressForWebhook) {
+            fullAddressForWebhook = '-';
+        }
+        
         const webhookData = {
             cardType: 'orange',
             orderId: state.orderId,
@@ -3208,8 +3225,8 @@
             total: total,
             phone: document.getElementById('phoneInput').value || '-',
             lineId: document.getElementById('lineInput').value || '-',
-            address: state.wantDelivery ? state.selectedAddressName : '-',
-            fullAddress: state.wantDelivery ? state.fullAddress : '-',
+            address: addressForWebhook,
+            fullAddress: fullAddressForWebhook,
             locationNote: state.wantDelivery ? state.locationNote : '-',
             deliveryFee: state.wantDelivery ? state.deliveryFee : 0,
             distance: state.wantDelivery ? state.distance : 0,
@@ -3311,10 +3328,12 @@
                 document.getElementById('receiptDeliverySection').style.display = 'block';
                 document.getElementById('receiptNote').style.display = 'block';
                 document.getElementById('receiptAddress').textContent = state.selectedAddressName || '-';
-            // แสดงที่อยู่เต็ม (ถ้ามี)
-            if (state.fullAddress && state.fullAddress !== '-') {
+            // แสดงที่อยู่เต็ม (ถ้ามีและไม่ซ้ำกับที่อยู่หลัก)
+            if (state.fullAddress && state.fullAddress !== '-' && state.fullAddress !== state.selectedAddressName) {
                 document.getElementById('receiptFullAddressRow').style.display = 'flex';
                 document.getElementById('receiptFullAddress').textContent = state.fullAddress;
+            } else {
+                document.getElementById('receiptFullAddressRow').style.display = 'none';
             }
                 document.getElementById('receiptLocationNote').textContent = state.locationNote || 'ไม่ระบุ';
                 document.getElementById('receiptDeliveryFee').textContent = state.deliveryFee + ' ฿';
