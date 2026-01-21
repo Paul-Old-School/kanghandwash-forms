@@ -2613,9 +2613,15 @@
         
         function calculateGrandTotal() {
             let total = 0;
-            state.baskets.forEach(b => {
-                total += getWashPrice(b.detergent, b.washSize, b.waterTemp);
-            });
+            
+            // คิดค่าซักเฉพาะเมื่อไม่ใช่ "อบอย่างเดียว"
+            if (state.serviceType !== 'dry_only') {
+                state.baskets.forEach(b => {
+                    total += getWashPrice(b.detergent, b.washSize, b.waterTemp);
+                });
+            }
+            
+            // คิดค่าอบเฉพาะเมื่อไม่ใช่ "ซักอย่างเดียว"
             if (state.serviceType !== 'wash_only') {
                 if (state.serviceType === 'wash_separate_dry_together') {
                     total += PRICING.dry[state.drySize].price + state.extraTime;
@@ -2625,6 +2631,7 @@
                     });
                 }
             }
+            
             if (state.wantDelivery) {
                 total += state.deliveryFee;
             }
