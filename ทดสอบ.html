@@ -3091,18 +3091,31 @@
         const basketPhotoUrls = uploadResults.basketPhotos.map(p => p.url).join(', ');
         
         // เตรียม baskets โดยไม่รวม photo base64 (เพื่อลดขนาด payload)
+        // และส่งเฉพาะข้อมูลที่เกี่ยวข้องกับ serviceType
         const basketsForWebhook = state.baskets.map((basket, idx) => {
             const photoResult = uploadResults.basketPhotos.find(p => p.basketIndex === idx + 1);
-            return {
+            
+            // สร้าง object พื้นฐาน
+            const basketData = {
                 queueNumber: basket.queueNumber,
-                detergent: basket.detergent,
-                waterTemp: basket.waterTemp,
-                washSize: basket.washSize,
-                drySize: basket.drySize,
-                dryTemp: basket.dryTemp,
-                extraTime: basket.extraTime,
                 photoUrl: photoResult ? photoResult.url : null
             };
+            
+            // เพิ่มข้อมูลซัก เฉพาะเมื่อไม่ใช่ "อบอย่างเดียว"
+            if (state.serviceType !== 'dry_only') {
+                basketData.detergent = basket.detergent;
+                basketData.waterTemp = basket.waterTemp;
+                basketData.washSize = basket.washSize;
+            }
+            
+            // เพิ่มข้อมูลอบ เฉพาะเมื่อไม่ใช่ "ซักอย่างเดียว"
+            if (state.serviceType !== 'wash_only') {
+                basketData.drySize = basket.drySize;
+                basketData.dryTemp = basket.dryTemp;
+                basketData.extraTime = basket.extraTime;
+            }
+            
+            return basketData;
         });
         
         // เตรียมข้อมูลส่ง Webhook (ส่ง URLs แทน base64)
