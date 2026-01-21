@@ -1648,6 +1648,7 @@
         function goBackToSearchCustomer() {
             document.getElementById('stepDeliveryAddressExisting').classList.add('hidden');
             document.getElementById('stepDeliveryAddressNew').classList.add('hidden');
+            document.getElementById('stepDeliveryCustomerType').classList.add('hidden');
             document.getElementById('stepSearchCustomer').classList.remove('hidden');
             // Reset search result
             document.getElementById('searchResultSection').classList.add('hidden');
@@ -1814,6 +1815,7 @@
             // เก็บข้อมูลลูกค้าไว้ใน state
             state.existingCustomer = customer;
             state.existingAddresses = addresses;
+            state.deliveryCustomerType = 'existing'; // *** สำคัญ: set เป็นลูกค้าเก่า ***
             
             // แสดงข้อความต้อนรับ
             let welcomeMsg = '👋 ยินดีต้อนรับกลับมาค่ะ';
@@ -2243,7 +2245,9 @@
         function showNewAddressFromExisting() {
             document.getElementById('stepDeliveryAddressExisting').classList.add('hidden');
             document.getElementById('stepDeliveryAddressNew').classList.remove('hidden');
-            state.deliveryCustomerType = 'new';
+            // ไม่เปลี่ยน deliveryCustomerType - ยังคงเป็น 'existing' 
+            // แต่ set selectedAddressId = 'new' เพื่อบอกว่าเป็นที่อยู่ใหม่
+            state.selectedAddressId = 'new';
         }
 
         function updateDeliveryLocationNote(value) {
