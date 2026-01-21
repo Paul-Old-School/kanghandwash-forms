@@ -892,6 +892,14 @@
                             <span class="value" id="existingAddressFee">-</span>
                         </div>
                     </div>
+                    <!-- ช่องกรอกที่อยู่จริง (แสดงเฉพาะเมื่อที่อยู่เดิมเป็น "ที่อยู่ใหม่") -->
+                    <div id="existingAddressUpdateSection" class="hidden" style="margin-top: 12px;">
+                        <div class="location-note-input">
+                            <label>🏠 กรุณากรอกที่อยู่จริง <span style="color: #e74c3c;">*</span></label>
+                            <textarea id="fullAddressInputExisting" placeholder="เช่น 288/26 ม.2 เพฟบางนา ต.บางเพรียง อ.บางบ่อ จ.สมุทรปราการ" oninput="updateFullAddressExisting(this.value)" rows="2" style="width: 100%; padding: 12px; border: 2px solid #f39c12; border-radius: 8px; font-size: 14px; font-family: inherit; resize: none; background: #fffbf0;"></textarea>
+                            <div class="hint" style="color: #e67e22;">⚠️ ที่อยู่เดิมยังไม่สมบูรณ์ กรุณากรอกที่อยู่จริงเพื่ออัปเดต</div>
+                        </div>
+                    </div>
                     <div class="location-note-input" style="margin-top: 12px;">
                         <label>📝 ระบุตำแหน่งวางตะกร้า <span style="color: #e74c3c;">*</span></label>
                         <input type="text" id="locationNoteInputExisting" placeholder="เช่น หน้าประตูห้อง, ล็อบบี้ชั้น 1" oninput="updateDeliveryLocationNote(this.value)">
@@ -1476,6 +1484,7 @@
             deliveryFee: 0,
             locationNote: '',
             fullAddress: '',
+            needAddressUpdate: false, // ต้องอัปเดตที่อยู่ไม่สมบูรณ์
             userLocation: null, // { lat, lng }
             distance: 0,
             // Existing customer state
@@ -1541,11 +1550,14 @@
             state.selectedAddressName = '';
             state.deliveryFee = 0;
             state.locationNote = '';
+            state.fullAddress = '';
+            state.needAddressUpdate = false;
             state.existingCustomer = null;
             state.existingAddresses = [];
             document.querySelectorAll('.delivery-choice-btn, .customer-type-btn, .address-item').forEach(btn => btn.classList.remove('active'));
             document.getElementById('newAddressConfirm').classList.add('hidden');
             document.getElementById('existingAddressConfirm').classList.add('hidden');
+            document.getElementById('existingAddressUpdateSection').classList.add('hidden');
             document.getElementById('searchPhoneInput').value = '';
             document.getElementById('searchResultSection').classList.add('hidden');
         }
@@ -1702,6 +1714,11 @@
             // ถ้าเลือกที่อยู่เดิม → ส่ง addressId ไปด้วย
             if (incrementOnly && state.selectedAddressId) {
                 customerData.addressId = state.selectedAddressId;
+                
+                // ถ้าต้องอัปเดตที่อยู่ (needAddressUpdate = true) → ส่ง address ไปด้วย
+                if (state.needAddressUpdate && state.fullAddress) {
+                    customerData.address = state.fullAddress;
+                }
             }
             
             // ถ้าไม่ใช่ incrementOnly ต้องส่ง address ด้วย
@@ -2222,11 +2239,27 @@
             element.classList.add('active');
             state.selectedAddressId = id;
             state.selectedAddressName = name;
-            state.fullAddress = name; // ใช้ที่อยู่ที่เลือกเป็น fullAddress
             state.deliveryFee = fee;
             document.getElementById('existingAddressName').textContent = name;
             document.getElementById('existingAddressFee').textContent = fee + '฿';
             document.getElementById('existingAddressConfirm').classList.remove('hidden');
+            
+            // ตรวจสอบว่าที่อยู่เป็น "ที่อยู่ใหม่" หรือไม่ (ยังไม่มีที่อยู่จริง)
+            const isIncompleteAddress = name.includes('ที่อยู่ใหม่') || name.includes('กม.)');
+            const updateSection = document.getElementById('existingAddressUpdateSection');
+            
+            if (isIncompleteAddress) {
+                // แสดงช่องกรอกที่อยู่จริง
+                updateSection.classList.remove('hidden');
+                state.fullAddress = ''; // ยังไม่มีที่อยู่จริง
+                state.needAddressUpdate = true;
+                document.getElementById('fullAddressInputExisting').value = '';
+            } else {
+                // ซ่อนช่องกรอก (ที่อยู่สมบูรณ์แล้ว)
+                updateSection.classList.add('hidden');
+                state.fullAddress = name; // ใช้ที่อยู่ที่เลือกเป็น fullAddress
+                state.needAddressUpdate = false;
+            }
         }
 
         function showNewAddressFromExisting() {
@@ -2244,6 +2277,14 @@
         function updateFullAddress(value) {
             state.fullAddress = value;
         }
+        
+        function updateFullAddressExisting(value) {
+            state.fullAddress = value;
+            // อัปเดต selectedAddressName ด้วย
+            if (value && value.trim() !== '') {
+                state.selectedAddressName = value;
+            }
+        }
 
         function confirmDeliveryAddress() {
             if (!state.selectedAddressId) {
@@ -2253,15 +2294,21 @@
             
             // ถ้าเป็นที่อยู่ใหม่ (selectedAddressId === 'new') ต้องตรวจสอบ fullAddress
             if (state.selectedAddressId === 'new') {
-                // ตรวจสอบว่ากรอกที่อยู่เพิ่มเติมหรือไม่
                 if (!state.fullAddress || state.fullAddress.trim() === '' || state.fullAddress === '-') {
                     alert('📍 กรุณากรอกที่อยู่เพิ่มเติมค่ะ\n\nเพื่อให้คนขับสามารถไปส่งผ้าได้ถูกต้อง');
                     return;
                 }
-                // ใช้ fullAddress เป็น selectedAddressName
                 state.selectedAddressName = state.fullAddress;
             }
-            // ถ้าเป็นที่อยู่เดิม → fullAddress ถูก set ไว้แล้วใน selectDeliveryAddress
+            
+            // ถ้าเป็นที่อยู่เดิมแต่ยังไม่สมบูรณ์ (needAddressUpdate = true)
+            if (state.needAddressUpdate) {
+                if (!state.fullAddress || state.fullAddress.trim() === '' || state.fullAddress === '-') {
+                    alert('📍 กรุณากรอกที่อยู่จริงค่ะ\n\nเพื่ออัปเดตที่อยู่ให้สมบูรณ์');
+                    return;
+                }
+                state.selectedAddressName = state.fullAddress;
+            }
             
             // ตรวจสอบว่าระบุตำแหน่งวางตะกร้าหรือไม่
             if (!state.locationNote || state.locationNote.trim() === '' || state.locationNote === '-') {
